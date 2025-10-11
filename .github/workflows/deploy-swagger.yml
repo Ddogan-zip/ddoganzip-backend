@@ -34,7 +34,7 @@ jobs:
           # 2. 생성된 swagger.yaml을 배포 폴더로 복사
           cp build/docs/swagger.yaml ./gh-pages-dist/
           # 3. 우리가 만든 /swagger/index.html을 배포 폴더로 복사
-          cp ./index.html ./gh-pages-dist/
+          cp swagger/index.html ./gh-pages-dist/
           # 4. Jekyll 비활성화 파일 생성
           touch ./gh-pages-dist/.nojekyll
 
