@@ -23,6 +23,8 @@ jobs:
 
       - name: Generate OpenAPI spec
         run: ./gradlew generateOpenApiDocs
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
 
       - name: Prepare files for deployment
