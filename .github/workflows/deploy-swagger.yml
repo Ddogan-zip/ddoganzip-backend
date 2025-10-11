@@ -33,7 +33,22 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
 
-      # 5. 생성된 문서를 gh-pages 브랜치에 배포합니다.
+      # 5. Swagger UI 파일 다운로드 및 설정
+      - name: Setup Swagger UI
+        run: |
+          # 최종 배포할 폴더(swagger-ui)를 생성합니다.
+          mkdir ./swagger-ui
+          # Swagger UI 최신 버전을 다운로드하여 압축을 풉니다.
+          wget https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.17.14.tar.gz
+          tar -xvzf v5.17.14.tar.gz
+          # dist 폴더 안의 웹 파일들을 swagger-ui 폴더로 옮깁니다.
+          mv swagger-ui-5.17.14/dist/* ./swagger-ui/
+          # 4단계에서 생성한 swagger.yaml 파일을 swagger-ui 폴더 안으로 복사합니다.
+          cp build/docs/swagger.yaml ./swagger-ui/
+          # swagger-ui의 index.html이 기본 예시 파일이 아닌, 우리 swagger.yaml을 보도록 수정합니다.
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./swagger.yaml|' ./swagger-ui/index.html
+
+      # 6. 생성된 문서를 gh-pages 브랜치에 배포합니다.
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
