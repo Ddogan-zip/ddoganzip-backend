@@ -30,6 +30,8 @@ jobs:
       # 4. Gradle 빌드를 실행하여 openapi.yaml 파일을 생성합니다.
       - name: Generate OpenAPI spec
         run: ./gradlew generateOpenApiDocs
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
       # 5. 생성된 문서를 gh-pages 브랜치에 배포합니다.
       - name: Deploy to GitHub Pages
