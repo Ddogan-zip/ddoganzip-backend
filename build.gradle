@@ -2,7 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
-    id "org.springdoc.openapi-gradle-plugin" version "1.8.0"
+    id "org.springdoc.openapi-gradle-plugin" version "1.9.0"
 }
 
 group = 'com.ddoganzip'
@@ -46,7 +46,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-openapi {
+openApi {
     outputDir = file("$buildDir/docs")
     outputFileName = "swagger.yaml" // 출력될 파일 이름
     // 여기에 추가적인 설정을 할 수 있습니다.
