@@ -35,7 +35,7 @@ jobs:
 
       # 5. Swagger UI 파일 다운로드 및 설정
       - name: Setup Swagger UI
-        run: |
+        run:
           # 최종 배포할 폴더(swagger-ui)를 생성합니다.
           mkdir ./swagger-ui
           # Swagger UI 최신 버전을 다운로드하여 압축을 풉니다.
