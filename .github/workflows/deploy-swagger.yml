@@ -46,7 +46,7 @@ jobs:
           # 4단계에서 생성한 swagger.yaml 파일을 swagger-ui 폴더 안으로 복사합니다.
           cp build/docs/swagger.yaml ./swagger-ui/
           # swagger-ui의 index.html이 기본 예시 파일이 아닌, 우리 swagger.yaml을 보도록 수정합니다.
-          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./swagger.yaml|' ./swagger-ui/index.html
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./swagger.yaml|' ./swagger-ui/swagger.yaml
 
       # 6. 생성된 문서를 gh-pages 브랜치에 배포합니다.
       - name: Deploy to GitHub Pages
