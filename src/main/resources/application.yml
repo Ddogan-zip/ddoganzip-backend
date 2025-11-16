@@ -1,47 +1,33 @@
-# 서버 포트 설정
 server:
   port: 8080
 
-# --- Spring Boot 기본 설정 ---
 spring:
-  # --- 데이터베이스(PostgreSQL) 연결 설정 ---
   datasource:
-    # PostgreSQL JDBC 드라이버 클래스 이름
-    driver-class-name: org.postgresql.Driver
-    # 데이터베이스 연결 URL (localhost의 5432 포트에 있는 'mydatabase' DB에 연결)
-    # 'mydatabase' 부분은 실제 생성한 데이터베이스 이름으로 변경하세요.
     url: jdbc:postgresql://localhost:5432/ddoganzip
-    # 데이터베이스 접속 유저 이름 (설치 시 설정한 이름으로 변경)
-    username: uoslife_hjj
-    # 데이터베이스 접속 비밀번호 (설치 시 설정한 비밀번호로 변경)
-    password: 865900
+    username: postgres
+    password: your_password
+    driver-class-name: org.postgresql.Driver
 
-  # --- JPA 및 하이버네이트 설정 ---
   jpa:
-    # JPA가 관리하는 엔티티를 기준으로 DB 테이블을 자동으로 변경/생성하는 전략
-    # - update: 변경된 부분만 반영 (개발 시 가장 편리)
-    # - create: 실행 시마다 모든 테이블을 삭제하고 새로 생성 (테스트용)
-    # - validate: 엔티티와 테이블이 일치하는지 검사만 함
-    # - none: 아무것도 하지 않음 (운영 환경에서 사용)
     hibernate:
-      ddl-auto: update
-
-    # 하이버네이트가 사용하는 DB 방언(Dialect)을 PostgreSQL에 맞게 설정
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-    # 실행되는 SQL 쿼리를 로그에 표시할지 여부
+      ddl-auto: create-drop
     show-sql: true
-
-    # 하이버네이트 관련 추가 설정
     properties:
       hibernate:
-        # SQL 로그를 보기 좋게 포맷팅
         format_sql: true
-        # SQL 로그에 포함될 주석(comment)을 남겨, 어떤 쿼리인지 파악하기 쉽게 함
-        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: true
 
-# --- 로깅 레벨 설정 (선택 사항) ---
-# 하이버네이트가 SQL 파라미터(쿼리의 ?에 바인딩되는 값)까지 로그에 보여주도록 설정
+  sql:
+    init:
+      mode: always
+
+jwt:
+  secret: ddoganzip-secret-key-for-jwt-token-minimum-256-bits-long-for-hs256-algorithm-security
+  access-token-validity: 3600000
+  refresh-token-validity: 604800000
+
 logging:
   level:
-    org.hibernate.type.descriptor.sql: trace
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
