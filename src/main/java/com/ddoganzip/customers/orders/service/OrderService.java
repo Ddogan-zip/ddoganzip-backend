@@ -1,0 +1,146 @@
+package com.ddoganzip.customers.orders.service;
+
+import com.ddoganzip.auth.repository.AuthRepository;
+import com.ddoganzip.customers.cart.repository.CartRepository;
+import com.ddoganzip.customers.orders.dto.*;
+import com.ddoganzip.customers.orders.repository.OrderRepository;
+import com.ddoganzip.entity.*;
+import com.ddoganzip.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
+    private final AuthRepository authRepository;
+
+    private Customer getCurrentCustomer() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return authRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("Customer not found"));
+    }
+
+    @Transactional
+    public Long checkout(CheckoutRequest request) {
+        Customer customer = getCurrentCustomer();
+        Cart cart = cartRepository.findByCustomerIdWithItems(customer.getId())
+                .orElseThrow(() -> new CustomException("Cart not found"));
+
+        if (cart.getItems().isEmpty()) {
+            throw new CustomException("Cart is empty");
+        }
+
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setOrderDate(LocalDateTime.now());
+        order.setDeliveryDate(request.getDeliveryDate());
+        order.setDeliveryAddress(request.getDeliveryAddress());
+        order.setStatus(OrderStatus.CHECKING_STOCK);
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setDinner(cartItem.getDinner());
+            orderItem.setServingStyle(cartItem.getServingStyle());
+            orderItem.setQuantity(cartItem.getQuantity());
+
+            BigDecimal itemPrice = cartItem.getDinner().getBasePrice()
+                    .add(cartItem.getServingStyle().getAdditionalPrice())
+                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
+            orderItem.setPrice(itemPrice);
+            totalPrice = totalPrice.add(itemPrice);
+
+            for (CustomizationAction cartCustomization : cartItem.getCustomizations()) {
+                CustomizationAction orderCustomization = new CustomizationAction();
+                orderCustomization.setOrderItem(orderItem);
+                orderCustomization.setAction(cartCustomization.getAction());
+                orderCustomization.setDish(cartCustomization.getDish());
+                orderCustomization.setQuantity(cartCustomization.getQuantity());
+                orderItem.getCustomizations().add(orderCustomization);
+            }
+
+            order.getItems().add(orderItem);
+        }
+
+        order.setTotalPrice(totalPrice);
+        Order savedOrder = orderRepository.save(order);
+
+        cart.clearItems();
+        cartRepository.save(cart);
+
+        return savedOrder.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderHistoryResponse> getOrderHistory() {
+        Customer customer = getCurrentCustomer();
+        List<Order> orders = orderRepository.findByCustomerIdOrderByOrderDateDesc(customer.getId());
+
+        return orders.stream()
+                .map(order -> OrderHistoryResponse.builder()
+                        .orderId(order.getId())
+                        .orderDate(order.getOrderDate())
+                        .deliveryDate(order.getDeliveryDate())
+                        .deliveryAddress(order.getDeliveryAddress())
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .itemCount(order.getItems().size())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrderDetails(Long orderId) {
+        Customer customer = getCurrentCustomer();
+        Order order = orderRepository.findByIdWithDetails(orderId)
+                .orElseThrow(() -> new CustomException("Order not found"));
+
+        if (!order.getCustomer().getId().equals(customer.getId())) {
+            throw new CustomException("Unauthorized access to order");
+        }
+
+        List<OrderDetailResponse.OrderItemInfo> itemInfos = order.getItems().stream()
+                .map(item -> {
+                    List<OrderDetailResponse.CustomizationInfo> customizations = item.getCustomizations().stream()
+                            .map(c -> OrderDetailResponse.CustomizationInfo.builder()
+                                    .action(c.getAction())
+                                    .dishName(c.getDish() != null ? c.getDish().getName() : null)
+                                    .quantity(c.getQuantity())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return OrderDetailResponse.OrderItemInfo.builder()
+                            .itemId(item.getId())
+                            .dinnerName(item.getDinner().getName())
+                            .servingStyleName(item.getServingStyle().getName())
+                            .quantity(item.getQuantity())
+                            .price(item.getPrice())
+                            .customizations(customizations)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return OrderDetailResponse.builder()
+                .orderId(order.getId())
+                .orderDate(order.getOrderDate())
+                .deliveryDate(order.getDeliveryDate())
+                .deliveryAddress(order.getDeliveryAddress())
+                .status(order.getStatus())
+                .totalPrice(order.getTotalPrice())
+                .items(itemInfos)
+                .build();
+    }
+}
