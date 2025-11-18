@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "serving_styles")
 @Getter
@@ -21,7 +19,7 @@ public class ServingStyle {
     private String name;
 
     @Column(nullable = false)
-    private BigDecimal additionalPrice;
+    private Integer additionalPrice;
 
     @Column(length = 500)
     private String description;
