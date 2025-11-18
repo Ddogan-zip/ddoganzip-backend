@@ -2,9 +2,31 @@
 
 훌륭한 디너 만찬을 고객의 집으로 배달하는 서비스의 백엔드 API 서버입니다.
 
-## API 문서
+음성 인식 기술을 활용하여 사용자가 말로 간편하게 주문할 수 있으며, 직원은 실시간으로 주문을 확인하고 관리할 수 있습니다.
+
+## 🔗 관련 프로젝트
+
+- **프론트엔드**: [ddoganzip-frontend](https://github.com/Ddogan-zip/ddoganzip-frontend) (React + TypeScript + Vite)
+- **백엔드**: 현재 레포지토리 (Spring Boot + PostgreSQL)
+
+## 📚 API 문서
 
 Swagger UI를 통한 상세 API 명세: https://ddogan-zip.github.io/ddoganzip-backend/
+
+## 🏗 시스템 아키텍처
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│   Frontend      │      │   Backend       │      │   Database      │
+│   (React)       │─────▶│   (Spring)      │─────▶│  (PostgreSQL)   │
+│   Port: 5173    │ HTTP │   Port: 8080    │ JDBC │   Port: 5432    │
+└─────────────────┘      └─────────────────┘      └─────────────────┘
+        │                         │
+        │                         │
+        ▼                         ▼
+  음성 인식 API            JWT 인증 + CORS
+  (Web Speech API)        (Spring Security)
+```
 
 ## 기술 스택
 
@@ -15,7 +37,55 @@ Swagger UI를 통한 상세 API 명세: https://ddogan-zip.github.io/ddoganzip-b
 - **ORM**: Spring Data JPA
 - **Documentation**: OpenAPI 3.0 (Swagger UI)
 
-## 실행 방법
+## 🚀 빠른 시작 (프론트엔드와 함께)
+
+전체 시스템을 실행하려면 백엔드와 프론트엔드를 모두 실행해야 합니다.
+
+### 1단계: 백엔드 실행 (이 레포지토리)
+
+```bash
+# H2 인메모리 DB로 빠르게 시작 (DB 설치 불필요)
+./gradlew bootRun --args='--spring.profiles.active=h2'
+
+# 또는 PostgreSQL 사용 (설정 필요)
+./gradlew bootRun
+```
+
+백엔드 서버: http://localhost:8080
+
+### 2단계: 프론트엔드 실행
+
+```bash
+# 프론트엔드 레포지토리 클론
+git clone https://github.com/Ddogan-zip/ddoganzip-frontend.git
+cd ddoganzip-frontend
+
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+```
+
+프론트엔드 서버: http://localhost:5173
+
+### 3단계: 접속
+
+- **메인 페이지**: http://localhost:5173
+- **음성 주문**: http://localhost:5173/order
+- **직원 대시보드**: http://localhost:5173/staff
+- **API 문서**: http://localhost:8080/swagger-ui.html
+
+### CORS 설정
+
+백엔드는 다음 Origin을 허용하도록 설정되어 있습니다:
+- `http://localhost:3000` (React 기본 포트)
+- `http://localhost:5173` (Vite 기본 포트)
+- `http://localhost:5000` (AI 서비스)
+
+---
+
+## 실행 방법 (백엔드만)
 
 ### 1. 데이터베이스 설정
 
@@ -479,6 +549,135 @@ src/main/java/com/ddoganzip/
 
 ---
 
-## 라이선스
+## 🔌 프론트엔드 연동 가이드
+
+### API 베이스 URL 설정
+
+프론트엔드에서 `.env` 파일에 다음 환경 변수를 설정하세요:
+
+```bash
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+### JWT 토큰 관리
+
+프론트엔드는 다음과 같이 JWT 토큰을 관리합니다:
+
+1. **로그인 시**: Access Token과 Refresh Token을 LocalStorage에 저장
+2. **API 요청 시**: Axios 인터셉터가 자동으로 `Authorization` 헤더에 토큰 추가
+3. **토큰 만료 시**: 401 에러 발생 시 Refresh Token으로 자동 갱신
+
+```typescript
+// 프론트엔드 Axios 설정 예시
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+```
+
+### 음성 주문 플로우
+
+1. 사용자가 음성으로 주문 (예: "발렌타인 디너 2개")
+2. 프론트엔드가 음성을 텍스트로 변환 (Web Speech API)
+3. AI 서비스가 주문 의도를 파싱
+4. 프론트엔드가 `POST /api/cart/items`로 장바구니에 추가
+5. 사용자 확인 후 `POST /api/orders/checkout`으로 주문 완료
+
+### 직원 대시보드 실시간 업데이트
+
+직원 대시보드는 5초마다 자동으로 활성 주문을 조회합니다:
+
+```typescript
+// React Query를 사용한 자동 새로고침
+useQuery({
+  queryKey: ['active-orders'],
+  queryFn: getActiveOrders,
+  refetchInterval: 5000, // 5초마다 자동 새로고침
+});
+```
+
+### 에러 처리
+
+백엔드는 다음과 같은 에러 응답 형식을 반환합니다:
+
+```json
+{
+  "success": false,
+  "message": "Error message",
+  "errors": ["Validation error 1", "Validation error 2"]
+}
+```
+
+프론트엔드는 이를 파싱하여 사용자에게 토스트 알림으로 표시합니다.
+
+### 주요 API 연동 예시
+
+#### 1. 메뉴 조회 및 표시
+```typescript
+const { data: menuList } = useQuery({
+  queryKey: ['menu-list'],
+  queryFn: () => axios.get('/api/menu/list'),
+});
+```
+
+#### 2. 장바구니에 추가
+```typescript
+const addToCartMutation = useMutation({
+  mutationFn: (item) => axios.post('/api/cart/items', item),
+  onSuccess: () => {
+    queryClient.invalidateQueries(['cart']);
+    toast.success('장바구니에 추가되었습니다');
+  },
+});
+```
+
+#### 3. 주문하기
+```typescript
+const checkoutMutation = useMutation({
+  mutationFn: (data) => axios.post('/api/orders/checkout', data),
+  onSuccess: () => {
+    toast.success('주문이 완료되었습니다');
+    navigate('/orders/history');
+  },
+});
+```
+
+---
+
+## 🔧 개발 가이드
+
+### 테스트
+
+```bash
+# 단위 테스트 실행
+./gradlew test
+
+# 특정 테스트만 실행
+./gradlew test --tests AuthServiceTest
+```
+
+### 빌드
+
+```bash
+# JAR 파일 생성
+./gradlew build
+
+# 빌드 파일 위치
+# build/libs/ddoganzip-0.0.1-SNAPSHOT.jar
+```
+
+### 운영 환경 배포
+
+```bash
+# 프로필 지정하여 실행
+java -jar build/libs/ddoganzip-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+---
+
+## 📝 라이선스
 
 This project is for educational purposes.
