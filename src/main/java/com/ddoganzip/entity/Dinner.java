@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,9 @@ public class Dinner {
     private String description;
 
     @Column(nullable = false)
-    private BigDecimal basePrice;
+    private Integer basePrice;
+
+    private String imageUrl;
 
     @ManyToMany
     @JoinTable(

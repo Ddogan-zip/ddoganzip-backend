@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class OrderDetailResponse {
     private LocalDateTime deliveryDate;
     private String deliveryAddress;
     private OrderStatus status;
-    private BigDecimal totalPrice;
+    private Integer totalPrice;
     private List<OrderItemInfo> items;
 
     @Data
@@ -32,7 +31,7 @@ public class OrderDetailResponse {
         private String dinnerName;
         private String servingStyleName;
         private Integer quantity;
-        private BigDecimal price;
+        private Integer price;
         private List<CustomizationInfo> customizations;
     }
 

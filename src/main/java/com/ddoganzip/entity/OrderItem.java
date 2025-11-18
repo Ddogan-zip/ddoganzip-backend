@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private Integer price;
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL)
     private List<CustomizationAction> customizations = new ArrayList<>();

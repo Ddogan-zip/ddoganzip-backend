@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -16,7 +15,8 @@ public class MenuDetailResponse {
     private Long id;
     private String name;
     private String description;
-    private BigDecimal basePrice;
+    private Integer basePrice;
+    private String imageUrl;
     private List<DishInfo> dishes;
     private List<ServingStyleInfo> availableStyles;
 
@@ -27,7 +27,8 @@ public class MenuDetailResponse {
     public static class DishInfo {
         private Long id;
         private String name;
-        private Integer defaultQuantity;
+        private String description;
+        private Integer basePrice;
     }
 
     @Data
@@ -37,7 +38,7 @@ public class MenuDetailResponse {
     public static class ServingStyleInfo {
         private Long id;
         private String name;
-        private BigDecimal additionalPrice;
+        private Integer additionalPrice;
         private String description;
     }
 }

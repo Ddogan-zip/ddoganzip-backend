@@ -18,5 +18,9 @@ public class Dish {
     @Column(nullable = false)
     private String name;
 
+    private String description;
+
+    private Integer basePrice;
+
     private Integer defaultQuantity;
 }

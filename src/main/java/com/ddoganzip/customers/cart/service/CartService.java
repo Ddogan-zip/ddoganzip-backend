@@ -11,8 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,9 +41,9 @@ public class CartService {
                 .map(this::mapToCartItemResponse)
                 .collect(Collectors.toList());
 
-        BigDecimal totalPrice = itemResponses.stream()
+        Integer totalPrice = itemResponses.stream()
                 .map(CartResponse.CartItemResponse::getItemTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(0, Integer::sum);
 
         return CartResponse.builder()
                 .cartId(cart.getId())
@@ -158,9 +156,8 @@ public class CartService {
     }
 
     private CartResponse.CartItemResponse mapToCartItemResponse(CartItem item) {
-        BigDecimal itemPrice = item.getDinner().getBasePrice()
-                .add(item.getServingStyle().getAdditionalPrice())
-                .multiply(BigDecimal.valueOf(item.getQuantity()));
+        Integer itemPrice = (item.getDinner().getBasePrice() + item.getServingStyle().getAdditionalPrice())
+                * item.getQuantity();
 
         List<CartResponse.CustomizationResponse> customizationResponses = item.getCustomizations().stream()
                 .map(c -> CartResponse.CustomizationResponse.builder()
