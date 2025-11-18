@@ -1,6 +1,6 @@
 package com.ddoganzip.staff.dto;
 
-import com.ddoganzip.entity.OrderStatus;
+import com.ddoganzip.customers.orders.entity.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

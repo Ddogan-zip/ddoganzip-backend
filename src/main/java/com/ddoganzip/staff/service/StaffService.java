@@ -1,8 +1,8 @@
 package com.ddoganzip.staff.service;
 
 import com.ddoganzip.customers.orders.repository.OrderRepository;
-import com.ddoganzip.entity.Order;
-import com.ddoganzip.entity.OrderStatus;
+import com.ddoganzip.customers.orders.entity.Order;
+import com.ddoganzip.customers.orders.entity.OrderStatus;
 import com.ddoganzip.exception.CustomException;
 import com.ddoganzip.staff.dto.ActiveOrdersResponse;
 import com.ddoganzip.staff.dto.UpdateOrderStatusRequest;

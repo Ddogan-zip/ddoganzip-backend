@@ -1,6 +1,6 @@
 package com.ddoganzip.auth.repository;
 
-import com.ddoganzip.entity.Customer;
+import com.ddoganzip.auth.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

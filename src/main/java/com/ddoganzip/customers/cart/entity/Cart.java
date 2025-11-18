@@ -1,5 +1,6 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.cart.entity;
 
+import com.ddoganzip.auth.entity.Customer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

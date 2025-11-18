@@ -3,7 +3,7 @@ package com.ddoganzip.customers.menu.service;
 import com.ddoganzip.customers.menu.dto.MenuDetailResponse;
 import com.ddoganzip.customers.menu.dto.MenuListResponse;
 import com.ddoganzip.customers.menu.repository.MenuRepository;
-import com.ddoganzip.entity.Dinner;
+import com.ddoganzip.customers.menu.entity.Dinner;
 import com.ddoganzip.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

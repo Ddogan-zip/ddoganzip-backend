@@ -1,6 +1,6 @@
 package com.ddoganzip.customers.cart.repository;
 
-import com.ddoganzip.entity.Cart;
+import com.ddoganzip.customers.cart.entity.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

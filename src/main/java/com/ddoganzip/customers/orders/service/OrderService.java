@@ -1,10 +1,16 @@
 package com.ddoganzip.customers.orders.service;
 
+import com.ddoganzip.auth.entity.Customer;
 import com.ddoganzip.auth.repository.AuthRepository;
+import com.ddoganzip.customers.cart.entity.Cart;
+import com.ddoganzip.customers.cart.entity.CartItem;
 import com.ddoganzip.customers.cart.repository.CartRepository;
 import com.ddoganzip.customers.orders.dto.*;
+import com.ddoganzip.customers.orders.entity.CustomizationAction;
+import com.ddoganzip.customers.orders.entity.Order;
+import com.ddoganzip.customers.orders.entity.OrderItem;
+import com.ddoganzip.customers.orders.entity.OrderStatus;
 import com.ddoganzip.customers.orders.repository.OrderRepository;
-import com.ddoganzip.entity.*;
 import com.ddoganzip.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;

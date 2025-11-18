@@ -1,4 +1,4 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.orders.entity;
 
 public enum OrderStatus {
     CHECKING_STOCK,

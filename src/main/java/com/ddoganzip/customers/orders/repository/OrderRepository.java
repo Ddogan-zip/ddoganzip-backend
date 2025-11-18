@@ -1,7 +1,7 @@
 package com.ddoganzip.customers.orders.repository;
 
-import com.ddoganzip.entity.Order;
-import com.ddoganzip.entity.OrderStatus;
+import com.ddoganzip.customers.orders.entity.Order;
+import com.ddoganzip.customers.orders.entity.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
