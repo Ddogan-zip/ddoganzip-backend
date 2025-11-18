@@ -1,4 +1,4 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.auth.entity;
 
 public enum Role {
     USER,

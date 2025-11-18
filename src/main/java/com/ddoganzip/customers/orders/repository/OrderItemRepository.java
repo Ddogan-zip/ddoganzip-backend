@@ -1,6 +1,6 @@
 package com.ddoganzip.customers.orders.repository;
 
-import com.ddoganzip.entity.OrderItem;
+import com.ddoganzip.customers.orders.entity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

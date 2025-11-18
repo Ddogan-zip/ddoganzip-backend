@@ -1,4 +1,4 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.menu.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "serving_styles")
+@Table(name = "dishes")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ServingStyle {
+public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,9 +18,9 @@ public class ServingStyle {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private Integer additionalPrice;
-
-    @Column(length = 500)
     private String description;
+
+    private Integer basePrice;
+
+    private Integer defaultQuantity;
 }

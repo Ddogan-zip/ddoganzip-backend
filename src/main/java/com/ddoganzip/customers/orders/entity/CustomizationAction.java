@@ -1,5 +1,7 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.orders.entity;
 
+import com.ddoganzip.customers.cart.entity.CartItem;
+import com.ddoganzip.customers.menu.entity.Dish;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

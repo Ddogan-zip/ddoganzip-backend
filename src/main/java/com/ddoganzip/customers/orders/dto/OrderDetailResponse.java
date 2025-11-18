@@ -1,6 +1,6 @@
 package com.ddoganzip.customers.orders.dto;
 
-import com.ddoganzip.entity.OrderStatus;
+import com.ddoganzip.customers.orders.entity.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

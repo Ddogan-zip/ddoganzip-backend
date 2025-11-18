@@ -1,7 +1,7 @@
 package com.ddoganzip.auth.service;
 
 import com.ddoganzip.auth.repository.AuthRepository;
-import com.ddoganzip.entity.Customer;
+import com.ddoganzip.auth.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

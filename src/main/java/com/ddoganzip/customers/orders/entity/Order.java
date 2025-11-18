@@ -1,5 +1,6 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.orders.entity;
 
+import com.ddoganzip.auth.entity.Customer;
 import com.ddoganzip.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;

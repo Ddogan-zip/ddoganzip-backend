@@ -1,4 +1,4 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.menu.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

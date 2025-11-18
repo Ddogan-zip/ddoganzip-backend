@@ -1,5 +1,7 @@
-package com.ddoganzip.entity;
+package com.ddoganzip.customers.orders.entity;
 
+import com.ddoganzip.customers.menu.entity.Dinner;
+import com.ddoganzip.customers.menu.entity.ServingStyle;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,18 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "order_items")
 @Getter
 @Setter
 @NoArgsConstructor
-public class CartItem {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "dinner_id")
@@ -31,8 +33,11 @@ public class CartItem {
     private ServingStyle servingStyle;
 
     @Column(nullable = false)
-    private Integer quantity = 1;
+    private Integer quantity;
 
-    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false)
+    private Integer price;
+
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL)
     private List<CustomizationAction> customizations = new ArrayList<>();
 }
