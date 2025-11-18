@@ -89,24 +89,24 @@ INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
 
 -- Sample Orders (샘플 주문 데이터)
 -- 박민수의 완료된 주문
-INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(4, 'DELIVERED', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 165000, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
+(4, 'DELIVERED', TIMESTAMP '2025-11-16 15:30:00', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 165000, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
 
 -- 김철수의 배달 중인 주문
-INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'DELIVERING', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 90000, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
+(2, 'DELIVERING', TIMESTAMP '2025-11-18 14:00:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 90000, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
 
 -- 이영희의 조리 중인 주문
-INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(3, 'IN_KITCHEN', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 110000, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
+(3, 'IN_KITCHEN', TIMESTAMP '2025-11-18 16:00:00', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 110000, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
 
 -- user@test.com의 접수된 주문
-INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(1, 'RECEIVED', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 86000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
+(1, 'RECEIVED', TIMESTAMP '2025-11-18 17:00:00', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 86000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
 
 -- 김철수의 재고 확인 중인 주문
-INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'CHECKING_STOCK', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 175000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
+(2, 'CHECKING_STOCK', TIMESTAMP '2025-11-18 17:30:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 175000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
 
 -- Order Items (주문 아이템 데이터)
 -- 주문 1 (박민수, DELIVERED): 한우 갈비 정식 x3 (프리미엄 스타일)
