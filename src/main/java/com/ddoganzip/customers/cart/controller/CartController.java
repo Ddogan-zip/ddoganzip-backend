@@ -52,4 +52,13 @@ public class CartController {
         CartResponse cart = cartService.getCart();
         return ResponseEntity.ok(cart);
     }
+
+    @PostMapping("/items/{itemId}/customize")
+    public ResponseEntity<CartResponse> customizeCartItem(
+            @PathVariable Long itemId,
+            @Valid @RequestBody CustomizeCartItemRequest request) {
+        cartService.customizeCartItem(itemId, request);
+        CartResponse cart = cartService.getCart();
+        return ResponseEntity.ok(cart);
+    }
 }

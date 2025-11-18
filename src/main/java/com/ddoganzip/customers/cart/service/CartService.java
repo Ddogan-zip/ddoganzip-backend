@@ -161,6 +161,50 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional
+    public void customizeCartItem(Long itemId, CustomizeCartItemRequest request) {
+        Customer customer = getCurrentCustomer();
+        CartItem cartItem = cartItemRepository.findByIdWithCustomizations(itemId)
+                .orElseThrow(() -> new CustomException("Cart item not found"));
+
+        if (!cartItem.getCart().getCustomer().getId().equals(customer.getId())) {
+            throw new CustomException("Unauthorized access to cart item");
+        }
+
+        Dish dish = dishRepository.findById(request.getDishId())
+                .orElseThrow(() -> new CustomException("Dish not found"));
+
+        String action = request.getAction().toUpperCase();
+
+        if ("ADD".equals(action) || "REPLACE".equals(action)) {
+            // ADD or REPLACE: 기존 커스터마이징을 찾아서 수정하거나 새로 추가
+            CustomizationAction existing = cartItem.getCustomizations().stream()
+                    .filter(c -> c.getDish() != null && c.getDish().getId().equals(dish.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existing != null) {
+                existing.setAction(action);
+                existing.setQuantity(request.getQuantity());
+            } else {
+                CustomizationAction newCustomization = new CustomizationAction();
+                newCustomization.setCartItem(cartItem);
+                newCustomization.setAction(action);
+                newCustomization.setDish(dish);
+                newCustomization.setQuantity(request.getQuantity());
+                cartItem.getCustomizations().add(newCustomization);
+            }
+        } else if ("REMOVE".equals(action)) {
+            // REMOVE: 해당 dish의 커스터마이징을 제거
+            cartItem.getCustomizations().removeIf(c ->
+                    c.getDish() != null && c.getDish().getId().equals(dish.getId()));
+        } else {
+            throw new CustomException("Invalid action: " + action);
+        }
+
+        cartItemRepository.save(cartItem);
+    }
+
     private CartResponse.CartItemResponse mapToCartItemResponse(CartItem item) {
         Integer itemPrice = (item.getDinner().getBasePrice() + item.getServingStyle().getAdditionalPrice())
                 * item.getQuantity();
