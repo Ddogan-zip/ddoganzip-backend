@@ -1008,12 +1008,21 @@ Array of ActiveOrdersResponse
 ### 테스트 계정
 
 **일반 사용자 (USER):**
-- Email: `customer1@test.com`
-- Password: `password123`
+
+| Email | Password | 이름 | 주소 | 전화번호 |
+|-------|----------|------|------|----------|
+| user@test.com | test1234 | 테스트 사용자 | 서울시 강남구 테헤란로 123 | 010-1234-5678 |
+| john@test.com | test1234 | John Smith | 서울시 서초구 강남대로 456 | 010-2222-3333 |
+| emily@test.com | test1234 | Emily Johnson | 서울시 송파구 올림픽로 789 | 010-3333-4444 |
+| mike@test.com | test1234 | Mike Brown | 서울시 강동구 천호대로 321 | 010-4444-5555 |
 
 **스태프 (STAFF):**
-- Email: `staff@test.com`
-- Password: `password123`
+
+| Email | Password | 이름 | 주소 | 전화번호 |
+|-------|----------|------|------|----------|
+| staff@test.com | staff1234 | 직원 계정 | 서울시 강남구 테헤란로 456 | 010-9876-5432 |
+
+**주의:** 모든 비밀번호는 BCrypt로 암호화되어 저장됩니다.
 
 ### 인증 헤더 형식
 
@@ -1054,7 +1063,72 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    - PENDING → PREPARING → DELIVERING → COMPLETED
    - 모든 상태에서 CANCELLED로 변경 가능
 
+### 데이터 ID 참조
+
+#### Serving Styles (서빙 스타일)
+
+| ID | 이름 | 추가 가격 | 설명 |
+|----|------|----------|------|
+| 1 | Simple | 0원 | 플라스틱 접시와 플라스틱 컵, 종이 냅킨이 플라스틱 쟁반에 제공 |
+| 2 | Grand | 15,000원 | 도자기 접시와 도자기 컵, 흰색 면 냅킨이 나무 쟁반에 제공 |
+| 3 | Deluxe | 30,000원 | 꽃병, 도자기 접시와 도자기 컵, 린넨 냅킨이 나무 쟁반에 제공 |
+
+#### Dinners (디너 메뉴)
+
+| ID | 이름 | 기본 가격 | 설명 | 선택 가능 스타일 |
+|----|------|----------|------|-----------------|
+| 1 | Valentine Dinner | 45,000원 | 작은 하트 모양과 큐피드가 장식된 접시에 냅킨과 함께 와인과 스테이크가 제공 | Simple(1), Grand(2), Deluxe(3) |
+| 2 | French Dinner | 48,000원 | 커피 한잔, 와인 한잔, 샐러드, 스테이크 제공 | Simple(1), Grand(2), Deluxe(3) |
+| 3 | English Dinner | 42,000원 | 에그 스크램블, 베이컨, 빵, 스테이크가 제공 | Simple(1), Grand(2), Deluxe(3) |
+| 4 | Champagne Feast Dinner | 120,000원 | 항상 2인 식사이고, 샴페인 1병, 4개의 바게트빵, 커피 포트, 와인, 스테이크 제공 | **Grand(2), Deluxe(3)만 가능** |
+
+#### Dishes (요리 품목)
+
+| ID | 이름 | 설명 | 단가 | 기본 수량 |
+|----|------|------|------|----------|
+| 1 | Steak | 프리미엄 스테이크 | 25,000원 | 1 |
+| 2 | Wine | 레드 와인 | 8,000원 | 1 |
+| 3 | Coffee | 아메리카노 | 3,000원 | 1 |
+| 4 | Salad | 신선한 샐러드 | 5,000원 | 1 |
+| 5 | Scrambled Eggs | 에그 스크램블 | 4,000원 | 1 |
+| 6 | Bacon | 베이컨 | 5,000원 | 1 |
+| 7 | Bread | 식빵 | 2,000원 | 1 |
+| 8 | Champagne | 샴페인 (병) | 50,000원 | 1 |
+| 9 | Baguette | 바게트빵 | 3,000원 | 1 |
+| 10 | Coffee Pot | 커피 포트 (6잔) | 10,000원 | 1 |
+| 11 | Heart Decoration | 하트 장식 | 2,000원 | 1 |
+| 12 | Cupid Decoration | 큐피드 장식 | 3,000원 | 1 |
+| 13 | Napkin | 냅킨 | 500원 | 1 |
+
+#### Dinner 구성 품목
+
+**Valentine Dinner (ID: 1)**
+- Steak (ID: 1)
+- Wine (ID: 2)
+- Heart Decoration (ID: 11)
+- Cupid Decoration (ID: 12)
+- Napkin (ID: 13)
+
+**French Dinner (ID: 2)**
+- Coffee (ID: 3)
+- Wine (ID: 2)
+- Salad (ID: 4)
+- Steak (ID: 1)
+
+**English Dinner (ID: 3)**
+- Scrambled Eggs (ID: 5)
+- Bacon (ID: 6)
+- Bread (ID: 7)
+- Steak (ID: 1)
+
+**Champagne Feast Dinner (ID: 4)**
+- Champagne (ID: 8) - 1병
+- Baguette (ID: 9) - 4개
+- Coffee Pot (ID: 10) - 6잔
+- Wine (ID: 2)
+- Steak (ID: 1) - 2인분
+
 ---
 
-**문서 버전:** 1.0.0
+**문서 버전:** 1.1.0
 **최종 업데이트:** 2025-11-18
