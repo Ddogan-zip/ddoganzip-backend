@@ -68,24 +68,24 @@ INSERT INTO customers (email, password, name, address, phone, role, created_at, 
 ('staff@test.com', '$2a$10$zQs8J9L7RHRRKZhz4Ra8K.1.7NYaHh6VA5Z/8WjReSO1mrb7ZL0In', '직원 계정', '서울시 강남구 테헤란로 456', '010-9876-5432', 'STAFF', NOW(), NOW());
 
 -- Carts for users
-INSERT INTO carts (customer_id, created_at, updated_at) VALUES
-(1, NOW(), NOW()),  -- user@test.com의 장바구니
-(2, NOW(), NOW()),  -- 김철수의 장바구니
-(3, NOW(), NOW());  -- 이영희의 장바구니
+INSERT INTO carts (customer_id) VALUES
+(1),  -- user@test.com의 장바구니
+(2),  -- 김철수의 장바구니
+(3);  -- 이영희의 장바구니
 
 -- Cart Items (샘플 장바구니 데이터)
 -- user@test.com의 장바구니: 프리미엄 스테이크 디너 x2 (프리미엄 스타일)
-INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
-(1, 1, 2, 2, 55000, 110000, NOW(), NOW());
+INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
+(1, 1, 2, 2);
 
 -- 김철수의 장바구니: 시푸드 파스타 세트 x1 (심플 스타일), 연어 스시 모듬 x1 (패밀리 스타일)
-INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
-(2, 2, 1, 1, 32000, 32000, NOW(), NOW()),
-(2, 5, 3, 1, 53000, 53000, NOW(), NOW());
+INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
+(2, 2, 1, 1),
+(2, 5, 3, 1);
 
 -- 이영희의 장바구니: 삼겹살 구이 세트 x3 (패밀리 스타일)
-INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
-(3, 4, 3, 3, 43000, 129000, NOW(), NOW());
+INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
+(3, 4, 3, 3);
 
 -- Sample Orders (샘플 주문 데이터)
 -- 박민수의 완료된 주문
@@ -102,31 +102,31 @@ INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_
 
 -- user@test.com의 접수된 주문
 INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(1, 'RECEIVED', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 85000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
+(1, 'RECEIVED', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 86000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
 
 -- 김철수의 재고 확인 중인 주문
 INSERT INTO orders (customer_id, status, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'CHECKING_STOCK', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 128000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
+(2, 'CHECKING_STOCK', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 175000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
 
 -- Order Items (주문 아이템 데이터)
 -- 주문 1 (박민수, DELIVERED): 한우 갈비 정식 x3 (프리미엄 스타일)
-INSERT INTO order_items (order_id, dinner_id, dinner_name, serving_style_id, serving_style_name, quantity, unit_price, total_price) VALUES
-(1, 3, '한우 갈비 정식', 2, '프리미엄', 3, 55000, 165000);
+INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
+(1, 3, 2, 3, 165000);
 
 -- 주문 2 (김철수, DELIVERING): 프리미엄 스테이크 디너 x1 (프리미엄), 연어 스시 모듬 x1 (심플)
-INSERT INTO order_items (order_id, dinner_id, dinner_name, serving_style_id, serving_style_name, quantity, unit_price, total_price) VALUES
-(2, 1, '프리미엄 스테이크 디너', 2, '프리미엄', 1, 55000, 55000),
-(2, 5, '연어 스시 모듬', 1, '심플', 1, 38000, 38000);
+INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
+(2, 1, 2, 1, 55000),
+(2, 5, 1, 1, 38000);
 
 -- 주문 3 (이영희, IN_KITCHEN): 시푸드 파스타 세트 x2 (프리미엄)
-INSERT INTO order_items (order_id, dinner_id, dinner_name, serving_style_id, serving_style_name, quantity, unit_price, total_price) VALUES
-(3, 2, '시푸드 파스타 세트', 2, '프리미엄', 2, 55000, 110000);
+INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
+(3, 2, 2, 2, 110000);
 
 -- 주문 4 (user@test.com, RECEIVED): 삼겹살 구이 세트 x2 (패밀리)
-INSERT INTO order_items (order_id, dinner_id, dinner_name, serving_style_id, serving_style_name, quantity, unit_price, total_price) VALUES
-(4, 4, '삼겹살 구이 세트', 3, '패밀리', 2, 43000, 86000);
+INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
+(4, 4, 3, 2, 86000);
 
 -- 주문 5 (김철수, CHECKING_STOCK): 프리미엄 스테이크 디너 x2 (패밀리), 한우 갈비 정식 x1 (심플)
-INSERT INTO order_items (order_id, dinner_id, dinner_name, serving_style_id, serving_style_name, quantity, unit_price, total_price) VALUES
-(5, 1, '프리미엄 스테이크 디너', 3, '패밀리', 2, 60000, 120000),
-(5, 3, '한우 갈비 정식', 1, '심플', 1, 55000, 55000);
+INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
+(5, 1, 3, 2, 120000),
+(5, 3, 1, 1, 55000);
