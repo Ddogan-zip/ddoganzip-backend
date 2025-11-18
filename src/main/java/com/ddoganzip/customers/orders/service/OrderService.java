@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class OrderService {
         order.setDeliveryAddress(request.getDeliveryAddress());
         order.setStatus(OrderStatus.CHECKING_STOCK);
 
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        Integer totalPrice = 0;
 
         for (CartItem cartItem : cart.getItems()) {
             OrderItem orderItem = new OrderItem();
@@ -56,12 +55,11 @@ public class OrderService {
             orderItem.setServingStyle(cartItem.getServingStyle());
             orderItem.setQuantity(cartItem.getQuantity());
 
-            BigDecimal itemPrice = cartItem.getDinner().getBasePrice()
-                    .add(cartItem.getServingStyle().getAdditionalPrice())
-                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            Integer itemPrice = (cartItem.getDinner().getBasePrice() + cartItem.getServingStyle().getAdditionalPrice())
+                    * cartItem.getQuantity();
 
             orderItem.setPrice(itemPrice);
-            totalPrice = totalPrice.add(itemPrice);
+            totalPrice += itemPrice;
 
             for (CustomizationAction cartCustomization : cartItem.getCustomizations()) {
                 CustomizationAction orderCustomization = new CustomizationAction();
