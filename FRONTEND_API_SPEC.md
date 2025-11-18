@@ -321,6 +321,12 @@ GET /api/cart
     dinnerBasePrice: number;      // 디너 기본 가격
     servingStylePrice: number;     // 서빙 스타일 추가 가격
     itemTotalPrice: number;        // (디너 기본 + 서빙 추가) × 수량
+    customizations: Array<{        // 디너 커스터마이징 정보
+      action: string;              // "ADD", "REMOVE", "REPLACE"
+      dishId: number;
+      dishName: string;
+      quantity: number;
+    }>;
   }>;
   totalPrice: number;              // 전체 합계
 }
@@ -340,7 +346,21 @@ GET /api/cart
       "quantity": 1,
       "dinnerBasePrice": 45000,
       "servingStylePrice": 30000,
-      "itemTotalPrice": 75000
+      "itemTotalPrice": 75000,
+      "customizations": [
+        {
+          "action": "ADD",
+          "dishId": 8,
+          "dishName": "Champagne",
+          "quantity": 1
+        },
+        {
+          "action": "REMOVE",
+          "dishId": 2,
+          "dishName": "Wine",
+          "quantity": 0
+        }
+      ]
     }
   ],
   "totalPrice": 75000
@@ -415,6 +435,62 @@ DELETE /api/cart/items/{itemId}
 **헤더:** `Authorization: Bearer {accessToken}`
 
 **응답 (200):** 전체 CartResponse
+
+---
+
+### 3.6 장바구니 상품 커스터마이징
+```http
+POST /api/cart/items/{itemId}/customize
+```
+
+**헤더:** `Authorization: Bearer {accessToken}`
+
+**요청 Body:**
+```typescript
+{
+  action: string;    // "ADD", "REMOVE", "REPLACE"
+  dishId: number;    // 커스터마이징할 Dish ID
+  quantity: number;  // 수량 (ADD/REPLACE일 때만 사용)
+}
+```
+
+**Action 설명:**
+- **ADD**: 디너에 새로운 dish를 추가
+- **REMOVE**: 디너에서 특정 dish를 제거
+- **REPLACE**: 기존 dish의 수량을 변경
+
+**응답 (200):** 전체 CartResponse (customizations 포함)
+
+**예시 요청 - Steak 추가:**
+```json
+{
+  "action": "ADD",
+  "dishId": 1,
+  "quantity": 2
+}
+```
+
+**예시 요청 - Wine 제거:**
+```json
+{
+  "action": "REMOVE",
+  "dishId": 2,
+  "quantity": 0
+}
+```
+
+**예시 요청 - Champagne 수량 변경:**
+```json
+{
+  "action": "REPLACE",
+  "dishId": 8,
+  "quantity": 2
+}
+```
+
+**✅ 중요:**
+- 각 디너의 구성품(Dish)을 개별적으로 추가/제거/변경 가능
+- customizations는 CartResponse에 포함되어 반환됨
 
 ---
 
@@ -815,6 +891,66 @@ const checkout = async (deliveryAddress: string, deliveryDate: string) => {
   const result = await response.json();
   const orderId = result.data;
   console.log('Order created:', orderId);
+};
+```
+
+### 5. 디너 커스터마이징
+```typescript
+// Champagne을 추가
+const addChampagne = async (cartItemId: number) => {
+  const response = await fetch(`/api/cart/items/${cartItemId}/customize`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'ADD',
+      dishId: 8,  // Champagne
+      quantity: 2
+    })
+  });
+
+  const cart = await response.json();
+  console.log('Updated cart with customization:', cart);
+};
+
+// Wine 제거
+const removeWine = async (cartItemId: number) => {
+  const response = await fetch(`/api/cart/items/${cartItemId}/customize`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'REMOVE',
+      dishId: 2,  // Wine
+      quantity: 0
+    })
+  });
+
+  const cart = await response.json();
+  console.log('Wine removed:', cart);
+};
+
+// Steak 수량 변경
+const replaceSteak = async (cartItemId: number) => {
+  const response = await fetch(`/api/cart/items/${cartItemId}/customize`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'REPLACE',
+      dishId: 1,  // Steak
+      quantity: 3
+    })
+  });
+
+  const cart = await response.json();
+  console.log('Steak quantity updated:', cart);
 };
 ```
 
