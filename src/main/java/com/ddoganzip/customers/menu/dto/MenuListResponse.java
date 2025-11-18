@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,5 +13,6 @@ public class MenuListResponse {
     private Long id;
     private String name;
     private String description;
-    private BigDecimal basePrice;
+    private Integer basePrice;
+    private String imageUrl;
 }

@@ -16,9 +16,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
-        ErrorResponse response = ErrorResponse.builder()
-                .success(false)
+        ErrorResponse.ErrorDetail errorDetail = ErrorResponse.ErrorDetail.builder()
+                .code("CUSTOM_ERROR")
                 .message(ex.getMessage())
+                .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .error(errorDetail)
                 .build();
         return ResponseEntity.badRequest().body(response);
     }
@@ -30,28 +33,39 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
 
+        String details = String.join(", ", errors);
+        ErrorResponse.ErrorDetail errorDetail = ErrorResponse.ErrorDetail.builder()
+                .code("VALIDATION_ERROR")
+                .message("입력 데이터가 유효하지 않습니다")
+                .details(details)
+                .build();
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("Validation failed")
-                .errors(errors)
+                .error(errorDetail)
                 .build();
         return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorResponse.ErrorDetail errorDetail = ErrorResponse.ErrorDetail.builder()
+                .code("INVALID_CREDENTIALS")
+                .message("이메일 또는 비밀번호가 일치하지 않습니다")
+                .build();
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("Invalid email or password")
+                .error(errorDetail)
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        ErrorResponse.ErrorDetail errorDetail = ErrorResponse.ErrorDetail.builder()
+                .code("INTERNAL_SERVER_ERROR")
+                .message("서버 오류가 발생했습니다")
+                .details(ex.getMessage())
+                .build();
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("An unexpected error occurred: " + ex.getMessage())
+                .error(errorDetail)
                 .build();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

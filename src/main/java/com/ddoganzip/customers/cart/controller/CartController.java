@@ -22,30 +22,34 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<ApiResponse<Void>> addItemToCart(@Valid @RequestBody AddToCartRequest request) {
+    public ResponseEntity<CartResponse> addItemToCart(@Valid @RequestBody AddToCartRequest request) {
         cartService.addItemToCart(request);
-        return ResponseEntity.ok(ApiResponse.success("Item added to cart"));
+        CartResponse cart = cartService.getCart();
+        return ResponseEntity.ok(cart);
     }
 
     @PutMapping("/items/{itemId}/quantity")
-    public ResponseEntity<ApiResponse<Void>> updateItemQuantity(
+    public ResponseEntity<CartResponse> updateItemQuantity(
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateQuantityRequest request) {
         cartService.updateItemQuantity(itemId, request);
-        return ResponseEntity.ok(ApiResponse.success("Item quantity updated"));
+        CartResponse cart = cartService.getCart();
+        return ResponseEntity.ok(cart);
     }
 
     @PutMapping("/items/{itemId}/options")
-    public ResponseEntity<ApiResponse<Void>> updateItemOptions(
+    public ResponseEntity<CartResponse> updateItemOptions(
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateOptionsRequest request) {
         cartService.updateItemOptions(itemId, request);
-        return ResponseEntity.ok(ApiResponse.success("Item options updated"));
+        CartResponse cart = cartService.getCart();
+        return ResponseEntity.ok(cart);
     }
 
     @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<ApiResponse<Void>> removeItem(@PathVariable Long itemId) {
+    public ResponseEntity<CartResponse> removeItem(@PathVariable Long itemId) {
         cartService.removeItem(itemId);
-        return ResponseEntity.ok(ApiResponse.success("Item removed from cart"));
+        CartResponse cart = cartService.getCart();
+        return ResponseEntity.ok(cart);
     }
 }

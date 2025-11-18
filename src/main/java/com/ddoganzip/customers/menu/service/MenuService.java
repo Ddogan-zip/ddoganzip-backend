@@ -26,6 +26,7 @@ public class MenuService {
                         .name(dinner.getName())
                         .description(dinner.getDescription())
                         .basePrice(dinner.getBasePrice())
+                        .imageUrl(dinner.getImageUrl())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -38,7 +39,8 @@ public class MenuService {
                 .map(dish -> MenuDetailResponse.DishInfo.builder()
                         .id(dish.getId())
                         .name(dish.getName())
-                        .defaultQuantity(dish.getDefaultQuantity())
+                        .description(dish.getDescription())
+                        .basePrice(dish.getBasePrice())
                         .build())
                 .collect(Collectors.toList());
 
@@ -56,6 +58,7 @@ public class MenuService {
                 .name(dinner.getName())
                 .description(dinner.getDescription())
                 .basePrice(dinner.getBasePrice())
+                .imageUrl(dinner.getImageUrl())
                 .dishes(dishes)
                 .availableStyles(styles)
                 .build();
