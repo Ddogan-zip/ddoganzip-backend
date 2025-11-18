@@ -1,67 +1,70 @@
 -- Serving Styles
+-- Simple: 플라스틱 접시, 플라스틱 컵, 종이 냅킨, 플라스틱 쟁반
+-- Grand: 도자기 접시, 도자기 컵, 흰색 면 냅킨, 나무 쟁반
+-- Deluxe: 꽃병, 도자기 접시, 도자기 컵, 린넨 냅킨, 나무 쟁반, 유리 와인잔
 INSERT INTO serving_styles (name, additional_price, description) VALUES
-('심플', 0, '기본 구성'),
-('프리미엄', 10000, '와인과 디저트 포함'),
-('패밀리', 15000, '2인분 + 사이드 메뉴 추가');
+('Simple', 0, '플라스틱 접시와 플라스틱 컵, 종이 냅킨이 플라스틱 쟁반에 제공'),
+('Grand', 15000, '도자기 접시와 도자기 컵, 흰색 면 냅킨이 나무 쟁반에 제공'),
+('Deluxe', 30000, '꽃병, 도자기 접시와 도자기 컵, 린넨 냅킨이 나무 쟁반에 제공');
 
 -- Dishes
 INSERT INTO dishes (name, description, base_price, default_quantity) VALUES
-('한우 안심 스테이크', '200g 프리미엄 안심', 35000, 1),
-('그릴드 야채', '신선한 계절 야채', 5000, 1),
-('마늘빵', '수제 마늘빵', 3000, 1),
-('새우 파스타', '통새우가 들어간 토마토 파스타', 18000, 1),
-('시저 샐러드', '신선한 로메인 상추', 7000, 1),
-('한우 갈비', '300g 프리미엄 갈비', 38000, 1),
-('된장찌개', '전통 방식 된장찌개', 5000, 1),
-('삼겹살', '국내산 삼겹살 200g', 15000, 1),
-('상추쌈', '신선한 쌈 채소', 3000, 1),
-('연어 스시', '노르웨이산 연어 8피스', 20000, 1),
-('참치 스시', '참치 뱃살 6피스', 18000, 1);
+('Steak', '프리미엄 스테이크', 25000, 1),
+('Wine', '레드 와인', 8000, 1),
+('Coffee', '아메리카노', 3000, 1),
+('Salad', '신선한 샐러드', 5000, 1),
+('Scrambled Eggs', '에그 스크램블', 4000, 1),
+('Bacon', '베이컨', 5000, 1),
+('Bread', '식빵', 2000, 1),
+('Champagne', '샴페인 (병)', 50000, 1),
+('Baguette', '바게트빵', 3000, 1),
+('Coffee Pot', '커피 포트 (6잔)', 10000, 1),
+('Heart Decoration', '하트 장식', 2000, 1),
+('Cupid Decoration', '큐피드 장식', 3000, 1),
+('Napkin', '냅킨', 500, 1);
 
 -- Dinners
 INSERT INTO dinners (name, description, base_price, image_url) VALUES
-('프리미엄 스테이크 디너', '최상급 한우 스테이크와 사이드 메뉴', 45000, 'https://example.com/steak.jpg'),
-('시푸드 파스타 세트', '신선한 해산물이 가득한 파스타', 32000, 'https://example.com/pasta.jpg'),
-('한우 갈비 정식', '부드러운 한우 갈비와 전통 반찬', 55000, 'https://example.com/galbi.jpg'),
-('삼겹살 구이 세트', '국내산 삼겹살과 신선한 야채', 28000, 'https://example.com/samgyeopsal.jpg'),
-('연어 스시 모듬', '신선한 연어와 참치 스시', 38000, 'https://example.com/sushi.jpg');
+('Valentine Dinner', '작은 하트 모양과 큐피드가 장식된 접시에 냅킨과 함께 와인과 스테이크가 제공', 45000, 'https://example.com/valentine.jpg'),
+('French Dinner', '커피 한잔, 와인 한잔, 샐러드, 스테이크 제공', 48000, 'https://example.com/french.jpg'),
+('English Dinner', '에그 스크램블, 베이컨, 빵, 스테이크가 제공', 42000, 'https://example.com/english.jpg'),
+('Champagne Feast Dinner', '항상 2인 식사이고, 샴페인 1병, 4개의 바게트빵, 커피 포트, 와인, 스테이크 제공', 120000, 'https://example.com/champagne.jpg');
 
 -- Dinner-Dish relationships
--- 프리미엄 스테이크 디너 (id=1): 한우 안심 스테이크(1), 그릴드 야채(2), 마늘빵(3)
+-- Valentine Dinner (id=1): Steak(1), Wine(2), Heart Decoration(11), Cupid Decoration(12), Napkin(13)
 INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(1, 1), (1, 2), (1, 3);
+(1, 1), (1, 2), (1, 11), (1, 12), (1, 13);
 
--- 시푸드 파스타 세트 (id=2): 새우 파스타(4), 시저 샐러드(5), 마늘빵(3)
+-- French Dinner (id=2): Coffee(3), Wine(2), Salad(4), Steak(1)
 INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(2, 4), (2, 5), (2, 3);
+(2, 3), (2, 2), (2, 4), (2, 1);
 
--- 한우 갈비 정식 (id=3): 한우 갈비(6), 된장찌개(7), 그릴드 야채(2)
+-- English Dinner (id=3): Scrambled Eggs(5), Bacon(6), Bread(7), Steak(1)
 INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(3, 6), (3, 7), (3, 2);
+(3, 5), (3, 6), (3, 7), (3, 1);
 
--- 삼겹살 구이 세트 (id=4): 삼겹살(8), 상추쌈(9), 된장찌개(7)
+-- Champagne Feast Dinner (id=4): Champagne(8), Baguette(9) x4, Coffee Pot(10), Wine(2), Steak(1) x2
 INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(4, 8), (4, 9), (4, 7);
+(4, 8), (4, 9), (4, 10), (4, 2), (4, 1);
 
--- 연어 스시 모듬 (id=5): 연어 스시(10), 참치 스시(11)
-INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(5, 10), (5, 11);
-
--- Dinner-ServingStyle relationships (all dinners have all styles available)
+-- Dinner-ServingStyle relationships
+-- Valentine, French, English dinners: 모든 스타일 가능
 INSERT INTO dinner_serving_styles (dinner_id, style_id) VALUES
 (1, 1), (1, 2), (1, 3),
 (2, 1), (2, 2), (2, 3),
-(3, 1), (3, 2), (3, 3),
-(4, 1), (4, 2), (4, 3),
-(5, 1), (5, 2), (5, 3);
+(3, 1), (3, 2), (3, 3);
+
+-- Champagne Feast Dinner: Grand(2), Deluxe(3) 스타일만 가능
+INSERT INTO dinner_serving_styles (dinner_id, style_id) VALUES
+(4, 2), (4, 3);
 
 -- Test users
 -- User account (password: test1234)
 INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
 ('user@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', '테스트 사용자', '서울시 강남구 테헤란로 123', '010-1234-5678', 'USER', NOW(), NOW()),
-('김철수@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', '김철수', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', NOW(), NOW()),
-('이영희@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', '이영희', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', NOW(), NOW()),
-('박민수@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', '박민수', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', NOW(), NOW());
+('john@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'John Smith', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', NOW(), NOW()),
+('emily@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'Emily Johnson', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', NOW(), NOW()),
+('mike@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'Mike Brown', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', NOW(), NOW());
 
 -- Staff account (password: staff1234)
 INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
@@ -70,63 +73,61 @@ INSERT INTO customers (email, password, name, address, phone, role, created_at, 
 -- Carts for users
 INSERT INTO carts (customer_id) VALUES
 (1),  -- user@test.com의 장바구니
-(2),  -- 김철수의 장바구니
-(3);  -- 이영희의 장바구니
+(2),  -- john@test.com의 장바구니
+(3);  -- emily@test.com의 장바구니
 
 -- Cart Items (샘플 장바구니 데이터)
--- user@test.com의 장바구니: 프리미엄 스테이크 디너 x2 (프리미엄 스타일)
+-- user@test.com의 장바구니: Valentine Dinner x1 (Deluxe 스타일)
 INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
-(1, 1, 2, 2);
+(1, 1, 3, 1);
 
--- 김철수의 장바구니: 시푸드 파스타 세트 x1 (심플 스타일), 연어 스시 모듬 x1 (패밀리 스타일)
+-- john@test.com의 장바구니: French Dinner x1 (Grand 스타일), English Dinner x2 (Simple 스타일)
 INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
-(2, 2, 1, 1),
-(2, 5, 3, 1);
+(2, 2, 2, 1),
+(2, 3, 1, 2);
 
--- 이영희의 장바구니: 삼겹살 구이 세트 x3 (패밀리 스타일)
+-- emily@test.com의 장바구니: Champagne Feast Dinner x1 (Deluxe 스타일)
 INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
-(3, 4, 3, 3);
+(3, 4, 3, 1);
 
 -- Sample Orders (샘플 주문 데이터)
--- 박민수의 완료된 주문
+-- mike@test.com의 완료된 주문 (Valentine Dinner Deluxe)
 INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(4, 'DELIVERED', TIMESTAMP '2025-11-16 15:30:00', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 165000, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
+(4, 'DELIVERED', TIMESTAMP '2025-11-16 15:30:00', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 75000, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
 
--- 김철수의 배달 중인 주문
+-- john@test.com의 배달 중인 주문 (French Dinner Grand x2)
 INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'DELIVERING', TIMESTAMP '2025-11-18 14:00:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 90000, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
+(2, 'DELIVERING', TIMESTAMP '2025-11-18 14:00:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 126000, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
 
--- 이영희의 조리 중인 주문
+-- emily@test.com의 조리 중인 주문 (Champagne Feast Dinner Grand)
 INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(3, 'IN_KITCHEN', TIMESTAMP '2025-11-18 16:00:00', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 110000, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
+(3, 'IN_KITCHEN', TIMESTAMP '2025-11-18 16:00:00', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 135000, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
 
--- user@test.com의 접수된 주문
+-- user@test.com의 접수된 주문 (English Dinner Simple x2)
 INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(1, 'RECEIVED', TIMESTAMP '2025-11-18 17:00:00', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 86000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
+(1, 'RECEIVED', TIMESTAMP '2025-11-18 17:00:00', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 84000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
 
--- 김철수의 재고 확인 중인 주문
+-- john@test.com의 재고 확인 중인 주문 (Champagne Feast Dinner Deluxe)
 INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'CHECKING_STOCK', TIMESTAMP '2025-11-18 17:30:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 175000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
+(2, 'CHECKING_STOCK', TIMESTAMP '2025-11-18 17:30:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 150000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
 
 -- Order Items (주문 아이템 데이터)
--- 주문 1 (박민수, DELIVERED): 한우 갈비 정식 x3 (프리미엄 스타일)
+-- 주문 1 (mike, DELIVERED): Valentine Dinner x1 (Deluxe 스타일)
 INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
-(1, 3, 2, 3, 165000);
+(1, 1, 3, 1, 75000);
 
--- 주문 2 (김철수, DELIVERING): 프리미엄 스테이크 디너 x1 (프리미엄), 연어 스시 모듬 x1 (심플)
+-- 주문 2 (john, DELIVERING): French Dinner x2 (Grand 스타일)
 INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
-(2, 1, 2, 1, 55000),
-(2, 5, 1, 1, 38000);
+(2, 2, 2, 2, 126000);
 
--- 주문 3 (이영희, IN_KITCHEN): 시푸드 파스타 세트 x2 (프리미엄)
+-- 주문 3 (emily, IN_KITCHEN): Champagne Feast Dinner x1 (Grand 스타일)
 INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
-(3, 2, 2, 2, 110000);
+(3, 4, 2, 1, 135000);
 
--- 주문 4 (user@test.com, RECEIVED): 삼겹살 구이 세트 x2 (패밀리)
+-- 주문 4 (user, RECEIVED): English Dinner x2 (Simple 스타일)
 INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
-(4, 4, 3, 2, 86000);
+(4, 3, 1, 2, 84000);
 
--- 주문 5 (김철수, CHECKING_STOCK): 프리미엄 스테이크 디너 x2 (패밀리), 한우 갈비 정식 x1 (심플)
+-- 주문 5 (john, CHECKING_STOCK): Champagne Feast Dinner x1 (Deluxe 스타일)
 INSERT INTO order_items (order_id, dinner_id, serving_style_id, quantity, price) VALUES
-(5, 1, 3, 2, 120000),
-(5, 3, 1, 1, 55000);
+(5, 4, 3, 1, 150000);
