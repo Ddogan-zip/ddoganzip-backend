@@ -38,7 +38,9 @@ CREATE TABLE dishes (
     name VARCHAR(255) NOT NULL,
     description VARCHAR(500),
     base_price INTEGER NOT NULL,
-    default_quantity INTEGER NOT NULL
+    default_quantity INTEGER NOT NULL,
+    current_stock INTEGER DEFAULT 0,
+    minimum_stock INTEGER DEFAULT 10
 );
 
 -- Dinners table
