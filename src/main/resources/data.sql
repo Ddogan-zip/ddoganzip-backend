@@ -7,21 +7,21 @@ INSERT INTO serving_styles (name, additional_price, description) VALUES
 ('Grand', 15000, '도자기 접시와 도자기 컵, 흰색 면 냅킨이 나무 쟁반에 제공'),
 ('Deluxe', 30000, '꽃병, 도자기 접시와 도자기 컵, 린넨 냅킨이 나무 쟁반에 제공');
 
--- Dishes
-INSERT INTO dishes (name, description, base_price, default_quantity) VALUES
-('Steak', '프리미엄 스테이크', 25000, 1),
-('Wine', '레드 와인', 8000, 1),
-('Coffee', '아메리카노', 3000, 1),
-('Salad', '신선한 샐러드', 5000, 1),
-('Scrambled Eggs', '에그 스크램블', 4000, 1),
-('Bacon', '베이컨', 5000, 1),
-('Bread', '식빵', 2000, 1),
-('Champagne', '샴페인 (병)', 50000, 1),
-('Baguette', '바게트빵', 3000, 1),
-('Coffee Pot', '커피 포트 (6잔)', 10000, 1),
-('Heart Decoration', '하트 장식', 2000, 1),
-('Cupid Decoration', '큐피드 장식', 3000, 1),
-('Napkin', '냅킨', 500, 1);
+-- Dishes (with inventory: current_stock, minimum_stock)
+INSERT INTO dishes (name, description, base_price, default_quantity, current_stock, minimum_stock) VALUES
+('Steak', '프리미엄 스테이크', 25000, 1, 5, 10),
+('Wine', '레드 와인', 8000, 1, 15, 20),
+('Coffee', '아메리카노', 3000, 1, 50, 30),
+('Salad', '신선한 샐러드', 5000, 1, 8, 15),
+('Scrambled Eggs', '에그 스크램블', 4000, 1, 25, 20),
+('Bacon', '베이컨', 5000, 1, 12, 15),
+('Bread', '식빵', 2000, 1, 30, 25),
+('Champagne', '샴페인 (병)', 50000, 1, 3, 5),
+('Baguette', '바게트빵', 3000, 1, 20, 15),
+('Coffee Pot', '커피 포트 (6잔)', 10000, 1, 6, 8),
+('Heart Decoration', '하트 장식', 2000, 1, 40, 30),
+('Cupid Decoration', '큐피드 장식', 3000, 1, 35, 25),
+('Napkin', '냅킨', 500, 1, 100, 50);
 
 -- Dinners
 INSERT INTO dinners (name, description, base_price, image_url) VALUES

@@ -23,4 +23,10 @@ public class Dish {
     private Integer basePrice;
 
     private Integer defaultQuantity;
+
+    @Column(name = "current_stock")
+    private Integer currentStock = 0;
+
+    @Column(name = "minimum_stock")
+    private Integer minimumStock = 10;
 }
