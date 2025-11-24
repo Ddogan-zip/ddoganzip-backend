@@ -59,16 +59,16 @@ INSERT INTO dinner_serving_styles (dinner_id, style_id) VALUES
 (4, 2), (4, 3);
 
 -- Test users
--- User account (password: test1234)
+-- User accounts (password: test1234) - BCrypt hash generated and verified
 INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
-('user@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', '테스트 사용자', '서울시 강남구 테헤란로 123', '010-1234-5678', 'USER', NOW(), NOW()),
-('john@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'John Smith', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', NOW(), NOW()),
-('emily@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'Emily Johnson', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', NOW(), NOW()),
-('mike@test.com', '$2a$10$YQs0I8K7QGQQJYgz3QZ7J.0.6MXzGg5UZ4Y/7ViQdQN0lqZ6YK9Hm', 'Mike Brown', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', NOW(), NOW());
+('user@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '테스트 사용자', '서울시 강남구 테헤란로 123', '010-1234-5678', 'USER', NOW(), NOW()),
+('john@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'John Smith', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', NOW(), NOW()),
+('emily@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Emily Johnson', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', NOW(), NOW()),
+('mike@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mike Brown', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', NOW(), NOW());
 
--- Staff account (password: staff1234)
+-- Staff account (password: staff1234) - BCrypt hash generated and verified
 INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
-('staff@test.com', '$2a$10$zQs8J9L7RHRRKZhz4Ra8K.1.7NYaHh6VA5Z/8WjReSO1mrb7ZL0In', '직원 계정', '서울시 강남구 테헤란로 456', '010-9876-5432', 'STAFF', NOW(), NOW());
+('staff@test.com', '$2a$10$Xl4/5XJZLxJjCXXvlAl1/.Qp0K3CJM/W0.yLqg.qH0aDHEOZGTnTu', '직원 계정', '서울시 강남구 테헤란로 456', '010-9876-5432', 'STAFF', NOW(), NOW());
 
 -- Carts for users
 INSERT INTO carts (customer_id) VALUES
