@@ -73,12 +73,19 @@ public class AuthService {
             throw e;
         }
 
-        log.debug("[AuthService] Generating access token for email: {}", request.getEmail());
-        String accessToken = jwtUtil.generateAccessToken(request.getEmail());
+        // 사용자 정보 조회하여 role 가져오기
+        log.debug("[AuthService] Fetching customer to get role: {}", request.getEmail());
+        Customer customer = authRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException("Customer not found"));
+        String role = customer.getRole().name();  // Role enum을 String으로 변환 (USER 또는 STAFF)
+        log.info("[AuthService] Customer role: {} for email: {}", role, request.getEmail());
+
+        log.debug("[AuthService] Generating access token for email: {} with role: {}", request.getEmail(), role);
+        String accessToken = jwtUtil.generateAccessToken(request.getEmail(), role);
         log.debug("[AuthService] Access token generated - Length: {}", accessToken.length());
 
-        log.debug("[AuthService] Generating refresh token for email: {}", request.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(request.getEmail());
+        log.debug("[AuthService] Generating refresh token for email: {} with role: {}", request.getEmail(), role);
+        String refreshToken = jwtUtil.generateRefreshToken(request.getEmail(), role);
         log.debug("[AuthService] Refresh token generated - Length: {}", refreshToken.length());
 
         TokenResponse response = TokenResponse.builder()
@@ -88,7 +95,7 @@ public class AuthService {
                 .expiresIn(jwtUtil.getAccessTokenValidity() / 1000)
                 .build();
 
-        log.info("[AuthService] login() - SUCCESS for email: {}", request.getEmail());
+        log.info("[AuthService] login() - SUCCESS for email: {} with role: {}", request.getEmail(), role);
         return response;
     }
 
@@ -103,12 +110,13 @@ public class AuthService {
         log.debug("[AuthService] Refresh token is valid");
 
         String email = jwtUtil.getEmailFromToken(request.getRefreshToken());
-        log.info("[AuthService] Refreshing tokens for email: {}", email);
+        String role = jwtUtil.getRoleFromToken(request.getRefreshToken());
+        log.info("[AuthService] Refreshing tokens for email: {} with role: {}", email, role);
 
-        String newAccessToken = jwtUtil.generateAccessToken(email);
-        String newRefreshToken = jwtUtil.generateRefreshToken(email);
+        String newAccessToken = jwtUtil.generateAccessToken(email, role);
+        String newRefreshToken = jwtUtil.generateRefreshToken(email, role);
 
-        log.info("[AuthService] refresh() - SUCCESS for email: {}", email);
+        log.info("[AuthService] refresh() - SUCCESS for email: {} with role: {}", email, role);
         return TokenResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
