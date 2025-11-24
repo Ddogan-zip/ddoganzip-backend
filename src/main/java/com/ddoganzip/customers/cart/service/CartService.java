@@ -13,6 +13,7 @@ import com.ddoganzip.customers.menu.repository.MenuRepository;
 import com.ddoganzip.customers.orders.entity.CustomizationAction;
 import com.ddoganzip.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -32,24 +34,48 @@ public class CartService {
     private final AuthRepository authRepository;
 
     private Customer getCurrentCustomer() {
+        log.debug("[CartService] getCurrentCustomer() - Getting authentication from SecurityContext");
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return authRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException("Customer not found"));
+        log.info("[CartService] Current authenticated email: {}", email);
+
+        log.debug("[CartService] Finding customer by email in database");
+        Customer customer = authRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("[CartService] Customer not found for email: {}", email);
+                    return new CustomException("Customer not found");
+                });
+
+        log.info("[CartService] Customer found - ID: {}, Email: {}", customer.getId(), customer.getEmail());
+        return customer;
     }
 
     @Transactional(readOnly = true)
     public CartResponse getCart() {
-        Customer customer = getCurrentCustomer();
-        Cart cart = cartRepository.findByCustomerIdWithItems(customer.getId())
-                .orElseThrow(() -> new CustomException("Cart not found"));
+        log.info("[CartService] getCart() - START");
 
+        Customer customer = getCurrentCustomer();
+
+        log.debug("[CartService] Fetching cart for customer ID: {}", customer.getId());
+        Cart cart = cartRepository.findByCustomerIdWithItems(customer.getId())
+                .orElseThrow(() -> {
+                    log.error("[CartService] Cart not found for customer ID: {}", customer.getId());
+                    return new CustomException("Cart not found");
+                });
+
+        log.info("[CartService] Cart found - Cart ID: {}, Number of items: {}", cart.getId(), cart.getItems().size());
+
+        log.debug("[CartService] Mapping cart items to response DTOs");
         List<CartResponse.CartItemResponse> itemResponses = cart.getItems().stream()
                 .map(this::mapToCartItemResponse)
                 .collect(Collectors.toList());
 
+        log.debug("[CartService] Calculating total price");
         Integer totalPrice = itemResponses.stream()
                 .map(CartResponse.CartItemResponse::getItemTotalPrice)
                 .reduce(0, Integer::sum);
+
+        log.info("[CartService] getCart() - SUCCESS - Total items: {}, Total price: {}",
+            itemResponses.size(), totalPrice);
 
         return CartResponse.builder()
                 .cartId(cart.getId())
