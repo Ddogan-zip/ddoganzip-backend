@@ -93,18 +93,45 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderHistoryResponse> getOrderHistory() {
         Customer customer = getCurrentCustomer();
-        List<Order> orders = orderRepository.findByCustomerIdOrderByOrderDateDesc(customer.getId());
+        List<Order> orders = orderRepository.findByCustomerIdWithDetailsOrderByOrderDateDesc(customer.getId());
 
         return orders.stream()
-                .map(order -> OrderHistoryResponse.builder()
-                        .orderId(order.getId())
-                        .orderDate(order.getOrderDate())
-                        .deliveryDate(order.getDeliveryDate())
-                        .deliveryAddress(order.getDeliveryAddress())
-                        .status(order.getStatus())
-                        .totalPrice(order.getTotalPrice())
-                        .itemCount(order.getItems().size())
-                        .build())
+                .map(order -> {
+                    List<OrderHistoryResponse.OrderItemInfo> itemInfos = order.getItems().stream()
+                            .map(item -> {
+                                List<OrderHistoryResponse.CustomizationInfo> customizations = item.getCustomizations().stream()
+                                        .map(c -> OrderHistoryResponse.CustomizationInfo.builder()
+                                                .action(c.getAction())
+                                                .dishId(c.getDish() != null ? c.getDish().getId() : null)
+                                                .dishName(c.getDish() != null ? c.getDish().getName() : null)
+                                                .quantity(c.getQuantity())
+                                                .pricePerUnit(c.getDish() != null ? c.getDish().getBasePrice() : 0)
+                                                .build())
+                                        .collect(Collectors.toList());
+
+                                return OrderHistoryResponse.OrderItemInfo.builder()
+                                        .itemId(item.getId())
+                                        .dinnerId(item.getDinner().getId())
+                                        .dinnerName(item.getDinner().getName())
+                                        .servingStyleName(item.getServingStyle().getName())
+                                        .quantity(item.getQuantity())
+                                        .price(item.getPrice())
+                                        .customizations(customizations)
+                                        .build();
+                            })
+                            .collect(Collectors.toList());
+
+                    return OrderHistoryResponse.builder()
+                            .orderId(order.getId())
+                            .orderDate(order.getOrderDate())
+                            .deliveryDate(order.getDeliveryDate())
+                            .deliveryAddress(order.getDeliveryAddress())
+                            .status(order.getStatus())
+                            .totalPrice(order.getTotalPrice())
+                            .itemCount(order.getItems().size())
+                            .items(itemInfos)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
