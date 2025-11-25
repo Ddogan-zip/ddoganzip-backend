@@ -241,6 +241,7 @@ public class CartService {
                         .dishId(c.getDish() != null ? c.getDish().getId() : null)
                         .dishName(c.getDish() != null ? c.getDish().getName() : null)
                         .quantity(c.getQuantity())
+                        .pricePerUnit(c.getDish() != null ? c.getDish().getBasePrice() : 0)
                         .build())
                 .collect(Collectors.toList());
 
