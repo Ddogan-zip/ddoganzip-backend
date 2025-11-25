@@ -15,9 +15,30 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId ORDER BY o.orderDate DESC")
     List<Order> findByCustomerIdOrderByOrderDateDesc(Long customerId);
 
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.items oi " +
+           "LEFT JOIN FETCH oi.dinner " +
+           "LEFT JOIN FETCH oi.servingStyle " +
+           "LEFT JOIN FETCH oi.customizations c " +
+           "LEFT JOIN FETCH c.dish " +
+           "WHERE o.customer.id = :customerId " +
+           "ORDER BY o.orderDate DESC")
+    List<Order> findByCustomerIdWithDetailsOrderByOrderDateDesc(Long customerId);
+
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.items oi LEFT JOIN FETCH oi.dinner LEFT JOIN FETCH oi.servingStyle WHERE o.id = :orderId")
     Optional<Order> findByIdWithDetails(Long orderId);
 
     @Query("SELECT o FROM Order o WHERE o.status NOT IN :statuses ORDER BY o.orderDate DESC")
     List<Order> findActiveOrders(List<OrderStatus> statuses);
+
+    @Query("SELECT DISTINCT o FROM Order o " +
+           "LEFT JOIN FETCH o.items oi " +
+           "LEFT JOIN FETCH oi.dinner " +
+           "LEFT JOIN FETCH oi.servingStyle " +
+           "LEFT JOIN FETCH oi.customizations c " +
+           "LEFT JOIN FETCH c.dish " +
+           "LEFT JOIN FETCH o.customer " +
+           "WHERE o.status NOT IN :statuses " +
+           "ORDER BY o.orderDate DESC")
+    List<Order> findActiveOrdersWithDetails(List<OrderStatus> statuses);
 }
