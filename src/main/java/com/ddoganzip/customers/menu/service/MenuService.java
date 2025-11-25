@@ -70,6 +70,7 @@ public class MenuService {
                             .name(dinnerDish.getDish().getName())
                             .description(dinnerDish.getDish().getDescription())
                             .basePrice(dinnerDish.getDish().getBasePrice())
+                            .quantity(dinnerDish.getQuantity())  // Dinner에 포함된 수량
                             .build())
                     .collect(Collectors.toList());
 
