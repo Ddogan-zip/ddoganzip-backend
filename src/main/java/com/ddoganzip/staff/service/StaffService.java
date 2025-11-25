@@ -68,10 +68,66 @@ public class StaffService {
                 });
 
         OrderStatus oldStatus = order.getStatus();
-        order.setStatus(request.getStatus());
+        OrderStatus newStatus = request.getStatus();
+
+        // RECEIVED(접수)로 변경될 때 재고 차감
+        if (newStatus == OrderStatus.RECEIVED && oldStatus != OrderStatus.RECEIVED) {
+            deductInventoryForOrder(order);
+        }
+
+        order.setStatus(newStatus);
         orderRepository.save(order);
         log.info("[StaffService] Order {} status updated from {} to {}",
-            orderId, oldStatus, request.getStatus());
+            orderId, oldStatus, newStatus);
+    }
+
+    private void deductInventoryForOrder(Order order) {
+        log.info("[StaffService] deductInventoryForOrder() - START for orderId: {}", order.getId());
+
+        Map<Long, Integer> dishRequirements = new HashMap<>();
+
+        for (OrderItem orderItem : order.getItems()) {
+            Integer orderQuantity = orderItem.getQuantity();
+
+            // 1. Dinner에 포함된 기본 dish들
+            Dinner dinner = menuRepository.findByIdWithDishes(orderItem.getDinner().getId())
+                    .orElseThrow(() -> new CustomException("Dinner not found"));
+
+            for (DinnerDish dinnerDish : dinner.getDinnerDishes()) {
+                Long dishId = dinnerDish.getDish().getId();
+                Integer requiredQty = dinnerDish.getQuantity() * orderQuantity;
+                dishRequirements.merge(dishId, requiredQty, Integer::sum);
+            }
+
+            // 2. Customization에서 ADD된 dish들
+            for (var customization : orderItem.getCustomizations()) {
+                if ("ADD".equals(customization.getAction()) && customization.getDish() != null) {
+                    Long dishId = customization.getDish().getId();
+                    Integer requiredQty = customization.getQuantity() * orderQuantity;
+                    dishRequirements.merge(dishId, requiredQty, Integer::sum);
+                }
+            }
+        }
+
+        // 재고 차감
+        for (Map.Entry<Long, Integer> entry : dishRequirements.entrySet()) {
+            Long dishId = entry.getKey();
+            Integer requiredQty = entry.getValue();
+
+            Dish dish = dishRepository.findById(dishId)
+                    .orElseThrow(() -> new CustomException("Dish not found: " + dishId));
+
+            Integer currentStock = dish.getCurrentStock() != null ? dish.getCurrentStock() : 0;
+            Integer newStock = currentStock - requiredQty;
+
+            dish.setCurrentStock(newStock);
+            dishRepository.save(dish);
+
+            log.info("[StaffService] Deducted stock - Dish: {}, Before: {}, After: {}, Deducted: {}",
+                dish.getName(), currentStock, newStock, requiredQty);
+        }
+
+        log.info("[StaffService] deductInventoryForOrder() - END");
     }
 
     @Transactional(readOnly = true)
