@@ -28,11 +28,23 @@ public class OrderDetailResponse {
     @AllArgsConstructor
     public static class OrderItemInfo {
         private Long itemId;
+        private Long dinnerId;  // ✅ 추가
         private String dinnerName;
         private String servingStyleName;
         private Integer quantity;
         private Integer price;
+        private List<BaseDishInfo> baseDishes;  // ✅ 추가
         private List<CustomizationInfo> customizations;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BaseDishInfo {
+        private Long dishId;
+        private String dishName;
+        private Integer quantity;  // Dinner에 포함된 기본 수량
     }
 
     @Data
@@ -41,7 +53,9 @@ public class OrderDetailResponse {
     @AllArgsConstructor
     public static class CustomizationInfo {
         private String action;
+        private Long dishId;  // ✅ 추가
         private String dishName;
         private Integer quantity;
+        private Integer pricePerUnit;  // ✅ 추가
     }
 }
