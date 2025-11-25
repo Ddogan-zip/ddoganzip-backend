@@ -29,13 +29,8 @@ public class Dinner {
 
     private String imageUrl;
 
-    @ManyToMany
-    @JoinTable(
-            name = "dinner_dishes",
-            joinColumns = @JoinColumn(name = "dinner_id"),
-            inverseJoinColumns = @JoinColumn(name = "dish_id")
-    )
-    private List<Dish> dishes = new ArrayList<>();
+    @OneToMany(mappedBy = "dinner", cascade = CascadeType.ALL)
+    private List<DinnerDish> dinnerDishes = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

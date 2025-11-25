@@ -52,13 +52,15 @@ CREATE TABLE dinners (
     image_url VARCHAR(500)
 );
 
--- Dinner-Dish relationship (many-to-many)
+-- Dinner-Dish relationship (many-to-many with quantity)
 CREATE TABLE dinner_dishes (
+    id BIGSERIAL PRIMARY KEY,
     dinner_id BIGINT NOT NULL,
     dish_id BIGINT NOT NULL,
-    PRIMARY KEY (dinner_id, dish_id),
+    quantity INTEGER NOT NULL DEFAULT 1,
     FOREIGN KEY (dinner_id) REFERENCES dinners(id) ON DELETE CASCADE,
-    FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE
+    FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
+    UNIQUE (dinner_id, dish_id)
 );
 
 -- Dinner-ServingStyle relationship (many-to-many)
