@@ -3,6 +3,7 @@ package com.ddoganzip.staff.service;
 import com.ddoganzip.customers.cart.repository.DishRepository;
 import com.ddoganzip.customers.menu.entity.Dish;
 import com.ddoganzip.customers.menu.entity.Dinner;
+import com.ddoganzip.customers.menu.entity.DinnerDish;
 import com.ddoganzip.customers.menu.repository.MenuRepository;
 import com.ddoganzip.customers.orders.repository.OrderRepository;
 import com.ddoganzip.customers.orders.entity.Order;
@@ -125,20 +126,21 @@ public class StaffService {
             log.debug("[StaffService] Processing OrderItem - Dinner ID: {}, Quantity: {}",
                 dinnerId, orderQuantity);
 
-            // Dinner의 dishes를 조회
+            // Dinner의 dinnerDishes를 조회 (DinnerDish를 통해 수량 정보 포함)
             Dinner dinner = menuRepository.findByIdWithDishes(dinnerId)
                     .orElseThrow(() -> new CustomException("Dinner not found"));
 
-            // 각 dish의 필요 수량 계산
-            for (Dish dish : dinner.getDishes()) {
-                Integer defaultQty = dish.getDefaultQuantity() != null ? dish.getDefaultQuantity() : 1;
-                Integer requiredQty = defaultQty * orderQuantity;
+            // 각 dish의 필요 수량 계산 (DinnerDish의 quantity 사용)
+            for (DinnerDish dinnerDish : dinner.getDinnerDishes()) {
+                Dish dish = dinnerDish.getDish();
+                Integer dishQuantityInDinner = dinnerDish.getQuantity(); // Dinner에 포함된 dish의 기본 수량
+                Integer requiredQty = dishQuantityInDinner * orderQuantity;
 
                 // 같은 dish가 여러 dinner에 포함될 수 있으므로 합산
                 dishRequirements.merge(dish.getId(), requiredQty, Integer::sum);
 
-                log.debug("[StaffService] Dish: {} - Default qty: {}, Order qty: {}, Required: {}",
-                    dish.getName(), defaultQty, orderQuantity, requiredQty);
+                log.debug("[StaffService] Dish: {} - Quantity in dinner: {}, Order qty: {}, Required: {}",
+                    dish.getName(), dishQuantityInDinner, orderQuantity, requiredQty);
             }
         }
 

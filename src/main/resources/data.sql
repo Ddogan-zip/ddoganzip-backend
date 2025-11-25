@@ -30,22 +30,22 @@ INSERT INTO dinners (name, description, base_price, image_url) VALUES
 ('English Dinner', '에그 스크램블, 베이컨, 빵, 스테이크가 제공', 42000, 'https://example.com/english.jpg'),
 ('Champagne Feast Dinner', '항상 2인 식사이고, 샴페인 1병, 4개의 바게트빵, 커피 포트, 와인, 스테이크 제공', 120000, 'https://example.com/champagne.jpg');
 
--- Dinner-Dish relationships
--- Valentine Dinner (id=1): Steak(1), Wine(2), Heart Decoration(11), Cupid Decoration(12), Napkin(13)
-INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(1, 1), (1, 2), (1, 11), (1, 12), (1, 13);
+-- Dinner-Dish relationships with quantities
+-- Valentine Dinner (id=1): Steak(1)x1, Wine(2)x1, Heart Decoration(11)x1, Cupid Decoration(12)x1, Napkin(13)x1
+INSERT INTO dinner_dishes (dinner_id, dish_id, quantity) VALUES
+(1, 1, 1), (1, 2, 1), (1, 11, 1), (1, 12, 1), (1, 13, 1);
 
--- French Dinner (id=2): Coffee(3), Wine(2), Salad(4), Steak(1)
-INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(2, 3), (2, 2), (2, 4), (2, 1);
+-- French Dinner (id=2): Coffee(3)x1, Wine(2)x1, Salad(4)x1, Steak(1)x1
+INSERT INTO dinner_dishes (dinner_id, dish_id, quantity) VALUES
+(2, 3, 1), (2, 2, 1), (2, 4, 1), (2, 1, 1);
 
--- English Dinner (id=3): Scrambled Eggs(5), Bacon(6), Bread(7), Steak(1)
-INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(3, 5), (3, 6), (3, 7), (3, 1);
+-- English Dinner (id=3): Scrambled Eggs(5)x1, Bacon(6)x1, Bread(7)x1, Steak(1)x1
+INSERT INTO dinner_dishes (dinner_id, dish_id, quantity) VALUES
+(3, 5, 1), (3, 6, 1), (3, 7, 1), (3, 1, 1);
 
--- Champagne Feast Dinner (id=4): Champagne(8), Baguette(9) x4, Coffee Pot(10), Wine(2), Steak(1) x2
-INSERT INTO dinner_dishes (dinner_id, dish_id) VALUES
-(4, 8), (4, 9), (4, 10), (4, 2), (4, 1);
+-- Champagne Feast Dinner (id=4): Champagne(8)x1, Baguette(9)x4, Coffee Pot(10)x1, Wine(2)x1, Steak(1)x2
+INSERT INTO dinner_dishes (dinner_id, dish_id, quantity) VALUES
+(4, 8, 1), (4, 9, 4), (4, 10, 1), (4, 2, 1), (4, 1, 2);
 
 -- Dinner-ServingStyle relationships
 -- Valentine, French, English dinners: 모든 스타일 가능

@@ -4,6 +4,7 @@ import com.ddoganzip.customers.menu.dto.MenuDetailResponse;
 import com.ddoganzip.customers.menu.dto.MenuListResponse;
 import com.ddoganzip.customers.menu.repository.MenuRepository;
 import com.ddoganzip.customers.menu.entity.Dinner;
+import com.ddoganzip.customers.menu.entity.DinnerDish;
 import com.ddoganzip.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,7 @@ public class MenuService {
                         log.error("[MenuService] Dinner not found with id: {}", dinnerId);
                         return new CustomException("Dinner not found with id: " + dinnerId);
                     });
-            log.info("[MenuService] Dinner found: {}, with {} dishes", dinner.getName(), dinner.getDishes().size());
+            log.info("[MenuService] Dinner found: {}, with {} dishes", dinner.getName(), dinner.getDinnerDishes().size());
 
             // Fetch the same dinner with styles to populate the styles collection
             // Since we're in a transaction, this will update the same entity in the persistence context
@@ -63,12 +64,12 @@ public class MenuService {
             menuRepository.findByIdWithStyles(dinnerId);
             log.info("[MenuService] Loaded {} available styles", dinner.getAvailableStyles().size());
 
-            List<MenuDetailResponse.DishInfo> dishes = dinner.getDishes().stream()
-                    .map(dish -> MenuDetailResponse.DishInfo.builder()
-                            .id(dish.getId())
-                            .name(dish.getName())
-                            .description(dish.getDescription())
-                            .basePrice(dish.getBasePrice())
+            List<MenuDetailResponse.DishInfo> dishes = dinner.getDinnerDishes().stream()
+                    .map(dinnerDish -> MenuDetailResponse.DishInfo.builder()
+                            .id(dinnerDish.getDish().getId())
+                            .name(dinnerDish.getDish().getName())
+                            .description(dinnerDish.getDish().getDescription())
+                            .basePrice(dinnerDish.getDish().getBasePrice())
                             .build())
                     .collect(Collectors.toList());
 
