@@ -63,12 +63,11 @@ public class OrderService {
             orderItem.setServingStyle(cartItem.getServingStyle());
             orderItem.setQuantity(cartItem.getQuantity());
 
+            // 기본 가격: (디너 기본가 + 서빙스타일 추가가) * 수량
             Integer itemPrice = (cartItem.getDinner().getBasePrice() + cartItem.getServingStyle().getAdditionalPrice())
                     * cartItem.getQuantity();
 
-            orderItem.setPrice(itemPrice);
-            totalPrice += itemPrice;
-
+            // Customization 가격 계산 및 복사
             for (CustomizationAction cartCustomization : cartItem.getCustomizations()) {
                 CustomizationAction orderCustomization = new CustomizationAction();
                 orderCustomization.setOrderItem(orderItem);
@@ -76,7 +75,15 @@ public class OrderService {
                 orderCustomization.setDish(cartCustomization.getDish());
                 orderCustomization.setQuantity(cartCustomization.getQuantity());
                 orderItem.getCustomizations().add(orderCustomization);
+
+                // ADD 액션일 경우 가격 추가
+                if ("ADD".equals(cartCustomization.getAction()) && cartCustomization.getDish() != null) {
+                    itemPrice += cartCustomization.getDish().getBasePrice() * cartCustomization.getQuantity();
+                }
             }
+
+            orderItem.setPrice(itemPrice);
+            totalPrice += itemPrice;
 
             order.getItems().add(orderItem);
         }
