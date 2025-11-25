@@ -29,6 +29,7 @@ public class MenuDetailResponse {
         private String name;
         private String description;
         private Integer basePrice;
+        private Integer quantity;  // Dinner에 포함된 dish의 수량
     }
 
     @Data
