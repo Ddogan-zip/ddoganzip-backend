@@ -34,50 +34,23 @@ public class StaffService {
     @Transactional(readOnly = true)
     public List<ActiveOrdersResponse> getActiveOrders() {
         log.info("[StaffService] getActiveOrders() - START");
-        List<Order> activeOrders = orderRepository.findActiveOrdersWithDetails(
+        List<Order> activeOrders = orderRepository.findActiveOrders(
                 Arrays.asList(OrderStatus.DELIVERED)
         );
         log.info("[StaffService] Found {} active orders", activeOrders.size());
 
         List<ActiveOrdersResponse> response = activeOrders.stream()
-                .map(order -> {
-                    List<ActiveOrdersResponse.OrderItemInfo> itemInfos = order.getItems().stream()
-                            .map(item -> {
-                                List<ActiveOrdersResponse.CustomizationInfo> customizations = item.getCustomizations().stream()
-                                        .map(c -> ActiveOrdersResponse.CustomizationInfo.builder()
-                                                .action(c.getAction())
-                                                .dishId(c.getDish() != null ? c.getDish().getId() : null)
-                                                .dishName(c.getDish() != null ? c.getDish().getName() : null)
-                                                .quantity(c.getQuantity())
-                                                .pricePerUnit(c.getDish() != null ? c.getDish().getBasePrice() : 0)
-                                                .build())
-                                        .collect(Collectors.toList());
-
-                                return ActiveOrdersResponse.OrderItemInfo.builder()
-                                        .itemId(item.getId())
-                                        .dinnerId(item.getDinner().getId())
-                                        .dinnerName(item.getDinner().getName())
-                                        .servingStyleName(item.getServingStyle().getName())
-                                        .quantity(item.getQuantity())
-                                        .price(item.getPrice())
-                                        .customizations(customizations)
-                                        .build();
-                            })
-                            .collect(Collectors.toList());
-
-                    return ActiveOrdersResponse.builder()
-                            .orderId(order.getId())
-                            .customerName(order.getCustomer().getName())
-                            .customerEmail(order.getCustomer().getEmail())
-                            .orderDate(order.getOrderDate())
-                            .deliveryDate(order.getDeliveryDate())
-                            .deliveryAddress(order.getDeliveryAddress())
-                            .status(order.getStatus())
-                            .totalPrice(order.getTotalPrice())
-                            .itemCount(order.getItems().size())
-                            .items(itemInfos)
-                            .build();
-                })
+                .map(order -> ActiveOrdersResponse.builder()
+                        .orderId(order.getId())
+                        .customerName(order.getCustomer().getName())
+                        .customerEmail(order.getCustomer().getEmail())
+                        .orderDate(order.getOrderDate())
+                        .deliveryDate(order.getDeliveryDate())
+                        .deliveryAddress(order.getDeliveryAddress())
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .itemCount(order.getItems().size())
+                        .build())
                 .collect(Collectors.toList());
 
         log.info("[StaffService] getActiveOrders() - END");

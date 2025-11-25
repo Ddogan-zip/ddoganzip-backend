@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -21,31 +20,4 @@ public class OrderHistoryResponse {
     private OrderStatus status;
     private Integer totalPrice;
     private int itemCount;
-    private List<OrderItemInfo> items;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class OrderItemInfo {
-        private Long itemId;
-        private Long dinnerId;
-        private String dinnerName;
-        private String servingStyleName;
-        private Integer quantity;
-        private Integer price;
-        private List<CustomizationInfo> customizations;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CustomizationInfo {
-        private String action;
-        private Long dishId;
-        private String dishName;
-        private Integer quantity;
-        private Integer pricePerUnit;
-    }
 }
