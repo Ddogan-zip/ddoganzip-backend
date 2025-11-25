@@ -42,5 +42,6 @@ public class CartResponse {
         private Long dishId;
         private String dishName;
         private Integer quantity;
+        private Integer pricePerUnit;  // 단가 (요리 1개당 가격)
     }
 }
