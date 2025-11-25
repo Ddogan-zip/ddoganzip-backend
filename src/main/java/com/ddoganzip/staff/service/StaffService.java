@@ -2,20 +2,23 @@ package com.ddoganzip.staff.service;
 
 import com.ddoganzip.customers.cart.repository.DishRepository;
 import com.ddoganzip.customers.menu.entity.Dish;
+import com.ddoganzip.customers.menu.entity.Dinner;
+import com.ddoganzip.customers.menu.repository.MenuRepository;
 import com.ddoganzip.customers.orders.repository.OrderRepository;
 import com.ddoganzip.customers.orders.entity.Order;
+import com.ddoganzip.customers.orders.entity.OrderItem;
 import com.ddoganzip.customers.orders.entity.OrderStatus;
 import com.ddoganzip.exception.CustomException;
 import com.ddoganzip.staff.dto.ActiveOrdersResponse;
 import com.ddoganzip.staff.dto.InventoryItemResponse;
+import com.ddoganzip.staff.dto.OrderInventoryCheckResponse;
 import com.ddoganzip.staff.dto.UpdateOrderStatusRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,6 +28,7 @@ public class StaffService {
 
     private final OrderRepository orderRepository;
     private final DishRepository dishRepository;
+    private final MenuRepository menuRepository;
 
     @Transactional(readOnly = true)
     public List<ActiveOrdersResponse> getActiveOrders() {
@@ -95,5 +99,97 @@ public class StaffService {
 
         log.info("[StaffService] getInventory() - END, returning {} items", inventory.size());
         return inventory;
+    }
+
+    @Transactional(readOnly = true)
+    public OrderInventoryCheckResponse checkOrderInventory(Long orderId) {
+        log.info("[StaffService] checkOrderInventory() - START for orderId: {}", orderId);
+
+        // 1. 주문 조회
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> {
+                    log.error("[StaffService] Order not found with id: {}", orderId);
+                    return new CustomException("Order not found");
+                });
+
+        log.info("[StaffService] Order found - Customer: {}, Items: {}",
+            order.getCustomer().getName(), order.getItems().size());
+
+        // 2. 주문에 필요한 각 dish의 수량을 계산 (Map<dishId, requiredQuantity>)
+        Map<Long, Integer> dishRequirements = new HashMap<>();
+
+        for (OrderItem orderItem : order.getItems()) {
+            Long dinnerId = orderItem.getDinner().getId();
+            Integer orderQuantity = orderItem.getQuantity();
+
+            log.debug("[StaffService] Processing OrderItem - Dinner ID: {}, Quantity: {}",
+                dinnerId, orderQuantity);
+
+            // Dinner의 dishes를 조회
+            Dinner dinner = menuRepository.findByIdWithDishes(dinnerId)
+                    .orElseThrow(() -> new CustomException("Dinner not found"));
+
+            // 각 dish의 필요 수량 계산
+            for (Dish dish : dinner.getDishes()) {
+                Integer defaultQty = dish.getDefaultQuantity() != null ? dish.getDefaultQuantity() : 1;
+                Integer requiredQty = defaultQty * orderQuantity;
+
+                // 같은 dish가 여러 dinner에 포함될 수 있으므로 합산
+                dishRequirements.merge(dish.getId(), requiredQty, Integer::sum);
+
+                log.debug("[StaffService] Dish: {} - Default qty: {}, Order qty: {}, Required: {}",
+                    dish.getName(), defaultQty, orderQuantity, requiredQty);
+            }
+        }
+
+        log.info("[StaffService] Total unique dishes required: {}", dishRequirements.size());
+
+        // 3. 각 dish의 현재 재고와 비교
+        List<OrderInventoryCheckResponse.DishRequirement> requirements = new ArrayList<>();
+        boolean allSufficient = true;
+
+        for (Map.Entry<Long, Integer> entry : dishRequirements.entrySet()) {
+            Long dishId = entry.getKey();
+            Integer requiredQty = entry.getValue();
+
+            Dish dish = dishRepository.findById(dishId)
+                    .orElseThrow(() -> new CustomException("Dish not found"));
+
+            Integer currentStock = dish.getCurrentStock() != null ? dish.getCurrentStock() : 0;
+            boolean isSufficient = currentStock >= requiredQty;
+            Integer shortage = requiredQty - currentStock;  // 양수면 부족, 음수면 충분
+
+            if (!isSufficient) {
+                allSufficient = false;
+                log.warn("[StaffService] INSUFFICIENT STOCK - Dish: {}, Required: {}, Current: {}, Shortage: {}",
+                    dish.getName(), requiredQty, currentStock, shortage);
+            } else {
+                log.debug("[StaffService] SUFFICIENT - Dish: {}, Required: {}, Current: {}",
+                    dish.getName(), requiredQty, currentStock);
+            }
+
+            requirements.add(OrderInventoryCheckResponse.DishRequirement.builder()
+                    .dishId(dishId)
+                    .dishName(dish.getName())
+                    .requiredQuantity(requiredQty)
+                    .currentStock(currentStock)
+                    .isSufficient(isSufficient)
+                    .shortage(shortage > 0 ? shortage : 0)  // 0 이하면 0으로 (충분함)
+                    .build());
+        }
+
+        // 4. 응답 생성
+        OrderInventoryCheckResponse response = OrderInventoryCheckResponse.builder()
+                .orderId(orderId)
+                .customerName(order.getCustomer().getName())
+                .customerEmail(order.getCustomer().getEmail())
+                .isSufficient(allSufficient)
+                .requiredItems(requirements)
+                .build();
+
+        log.info("[StaffService] checkOrderInventory() - END, isSufficient: {}, items: {}",
+            allSufficient, requirements.size());
+
+        return response;
     }
 }

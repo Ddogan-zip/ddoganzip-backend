@@ -3,6 +3,7 @@ package com.ddoganzip.staff.controller;
 import com.ddoganzip.common.ApiResponse;
 import com.ddoganzip.staff.dto.ActiveOrdersResponse;
 import com.ddoganzip.staff.dto.InventoryItemResponse;
+import com.ddoganzip.staff.dto.OrderInventoryCheckResponse;
 import com.ddoganzip.staff.dto.UpdateOrderStatusRequest;
 import com.ddoganzip.staff.service.StaffService;
 import jakarta.validation.Valid;
@@ -66,6 +67,22 @@ public class StaffController {
             throw e;
         } finally {
             log.info("=== [StaffController] GET /api/staff/inventory - END ===");
+        }
+    }
+
+    @GetMapping("/orders/{orderId}/inventory-check")
+    public ResponseEntity<OrderInventoryCheckResponse> checkOrderInventory(@PathVariable Long orderId) {
+        log.info("=== [StaffController] GET /api/staff/orders/{}/inventory-check - START ===", orderId);
+        try {
+            OrderInventoryCheckResponse result = staffService.checkOrderInventory(orderId);
+            log.info("[StaffController] Inventory check completed - isSufficient: {}, items: {}",
+                result.getIsSufficient(), result.getRequiredItems().size());
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("[StaffController] Failed to check order inventory: {}", e.getMessage(), e);
+            throw e;
+        } finally {
+            log.info("=== [StaffController] GET /api/staff/orders/{}/inventory-check - END ===", orderId);
         }
     }
 }
