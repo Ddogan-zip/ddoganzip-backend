@@ -5,6 +5,7 @@ import com.ddoganzip.auth.repository.AuthRepository;
 import com.ddoganzip.customers.cart.entity.Cart;
 import com.ddoganzip.customers.cart.entity.CartItem;
 import com.ddoganzip.customers.cart.repository.CartRepository;
+import com.ddoganzip.customers.menu.repository.MenuRepository;
 import com.ddoganzip.customers.orders.dto.*;
 import com.ddoganzip.customers.orders.entity.CustomizationAction;
 import com.ddoganzip.customers.orders.entity.Order;
@@ -28,6 +29,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final AuthRepository authRepository;
+    private final MenuRepository menuRepository;
 
     private Customer getCurrentCustomer() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -118,20 +120,37 @@ public class OrderService {
 
         List<OrderDetailResponse.OrderItemInfo> itemInfos = order.getItems().stream()
                 .map(item -> {
+                    // 커스터마이징 정보 매핑 (가격 정보 포함)
                     List<OrderDetailResponse.CustomizationInfo> customizations = item.getCustomizations().stream()
                             .map(c -> OrderDetailResponse.CustomizationInfo.builder()
                                     .action(c.getAction())
+                                    .dishId(c.getDish() != null ? c.getDish().getId() : null)
                                     .dishName(c.getDish() != null ? c.getDish().getName() : null)
                                     .quantity(c.getQuantity())
+                                    .pricePerUnit(c.getDish() != null ? c.getDish().getBasePrice() : 0)
                                     .build())
                             .collect(Collectors.toList());
 
+                    // 기본 구성 품목 정보 매핑
+                    List<OrderDetailResponse.BaseDishInfo> baseDishes = menuRepository
+                            .findByIdWithDishes(item.getDinner().getId())
+                            .map(dinner -> dinner.getDinnerDishes().stream()
+                                    .map(dinnerDish -> OrderDetailResponse.BaseDishInfo.builder()
+                                            .dishId(dinnerDish.getDish().getId())
+                                            .dishName(dinnerDish.getDish().getName())
+                                            .quantity(dinnerDish.getQuantity())
+                                            .build())
+                                    .collect(Collectors.toList()))
+                            .orElse(List.of());
+
                     return OrderDetailResponse.OrderItemInfo.builder()
                             .itemId(item.getId())
+                            .dinnerId(item.getDinner().getId())
                             .dinnerName(item.getDinner().getName())
                             .servingStyleName(item.getServingStyle().getName())
                             .quantity(item.getQuantity())
                             .price(item.getPrice())
+                            .baseDishes(baseDishes)
                             .customizations(customizations)
                             .build();
                 })
