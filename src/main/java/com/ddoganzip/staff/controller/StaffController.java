@@ -4,6 +4,7 @@ import com.ddoganzip.common.ApiResponse;
 import com.ddoganzip.staff.dto.ActiveOrdersResponse;
 import com.ddoganzip.staff.dto.InventoryItemResponse;
 import com.ddoganzip.staff.dto.OrderInventoryCheckResponse;
+import com.ddoganzip.staff.dto.StaffAvailabilityResponse;
 import com.ddoganzip.staff.dto.UpdateOrderStatusRequest;
 import com.ddoganzip.staff.service.StaffService;
 import jakarta.validation.Valid;
@@ -83,6 +84,38 @@ public class StaffController {
             throw e;
         } finally {
             log.info("=== [StaffController] GET /api/staff/orders/{}/inventory-check - END ===", orderId);
+        }
+    }
+
+    @GetMapping("/availability")
+    public ResponseEntity<StaffAvailabilityResponse> getStaffAvailability() {
+        log.info("=== [StaffController] GET /api/staff/availability - START ===");
+        try {
+            StaffAvailabilityResponse availability = staffService.getStaffAvailability();
+            log.info("[StaffController] Staff availability - cooks: {}/{}, drivers: {}/{}",
+                availability.getAvailableCooks(), availability.getTotalCooks(),
+                availability.getAvailableDrivers(), availability.getTotalDrivers());
+            return ResponseEntity.ok(availability);
+        } catch (Exception e) {
+            log.error("[StaffController] Failed to get staff availability: {}", e.getMessage(), e);
+            throw e;
+        } finally {
+            log.info("=== [StaffController] GET /api/staff/availability - END ===");
+        }
+    }
+
+    @PostMapping("/drivers/return")
+    public ResponseEntity<ApiResponse<Void>> driverReturn() {
+        log.info("=== [StaffController] POST /api/staff/drivers/return - START ===");
+        try {
+            staffService.driverReturn();
+            log.info("[StaffController] Driver returned successfully");
+            return ResponseEntity.ok(ApiResponse.success("Driver returned"));
+        } catch (Exception e) {
+            log.error("[StaffController] Failed to return driver: {}", e.getMessage(), e);
+            throw e;
+        } finally {
+            log.info("=== [StaffController] POST /api/staff/drivers/return - END ===");
         }
     }
 }

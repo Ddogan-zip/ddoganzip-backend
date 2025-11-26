@@ -2,6 +2,7 @@ package com.ddoganzip.staff.service;
 
 import com.ddoganzip.customers.cart.repository.DishRepository;
 import com.ddoganzip.customers.menu.entity.Dish;
+import com.ddoganzip.customers.menu.entity.DishCategory;
 import com.ddoganzip.customers.menu.entity.Dinner;
 import com.ddoganzip.customers.menu.entity.DinnerDish;
 import com.ddoganzip.customers.menu.repository.MenuRepository;
@@ -13,7 +14,10 @@ import com.ddoganzip.exception.CustomException;
 import com.ddoganzip.staff.dto.ActiveOrdersResponse;
 import com.ddoganzip.staff.dto.InventoryItemResponse;
 import com.ddoganzip.staff.dto.OrderInventoryCheckResponse;
+import com.ddoganzip.staff.dto.StaffAvailabilityResponse;
 import com.ddoganzip.staff.dto.UpdateOrderStatusRequest;
+import com.ddoganzip.staff.entity.StaffAvailability;
+import com.ddoganzip.staff.repository.StaffAvailabilityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +35,7 @@ public class StaffService {
     private final OrderRepository orderRepository;
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
+    private final StaffAvailabilityRepository staffAvailabilityRepository;
 
     @Transactional(readOnly = true)
     public List<ActiveOrdersResponse> getActiveOrders() {
@@ -59,6 +64,26 @@ public class StaffService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    public StaffAvailabilityResponse getStaffAvailability() {
+        log.info("[StaffService] getStaffAvailability() - START");
+        StaffAvailability sa = staffAvailabilityRepository.getStaffAvailability();
+
+        StaffAvailabilityResponse response = StaffAvailabilityResponse.builder()
+                .availableCooks(sa.getAvailableCooks())
+                .totalCooks(sa.getTotalCooks())
+                .availableDrivers(sa.getAvailableDrivers())
+                .totalDrivers(sa.getTotalDrivers())
+                .canStartCooking(sa.getAvailableCooks() > 0)
+                .canStartDelivery(sa.getAvailableDrivers() > 0)
+                .build();
+
+        log.info("[StaffService] getStaffAvailability() - END, cooks: {}/{}, drivers: {}/{}",
+                sa.getAvailableCooks(), sa.getTotalCooks(),
+                sa.getAvailableDrivers(), sa.getTotalDrivers());
+        return response;
+    }
+
     @Transactional
     public void updateOrderStatus(Long orderId, UpdateOrderStatusRequest request) {
         log.info("[StaffService] updateOrderStatus() - START for orderId: {}, newStatus: {}",
@@ -71,10 +96,41 @@ public class StaffService {
 
         OrderStatus oldStatus = order.getStatus();
         OrderStatus newStatus = request.getStatus();
+        StaffAvailability sa = staffAvailabilityRepository.getStaffAvailability();
 
         // RECEIVED(접수)로 변경될 때 재고 차감
         if (newStatus == OrderStatus.RECEIVED && oldStatus != OrderStatus.RECEIVED) {
             deductInventoryForOrder(order);
+        }
+
+        // IN_KITCHEN(조리중)으로 변경될 때 요리 담당 직원 체크 및 할당
+        if (newStatus == OrderStatus.IN_KITCHEN && oldStatus != OrderStatus.IN_KITCHEN) {
+            if (sa.getAvailableCooks() <= 0) {
+                throw new CustomException("No available cook. Please wait until a cook is available.");
+            }
+            sa.setAvailableCooks(sa.getAvailableCooks() - 1);
+            staffAvailabilityRepository.save(sa);
+            log.info("[StaffService] Cook assigned. Available cooks: {}/{}",
+                    sa.getAvailableCooks(), sa.getTotalCooks());
+        }
+
+        // COOKED(조리완료)로 변경될 때 요리 담당 직원 복귀
+        if (newStatus == OrderStatus.COOKED && oldStatus == OrderStatus.IN_KITCHEN) {
+            sa.setAvailableCooks(sa.getAvailableCooks() + 1);
+            staffAvailabilityRepository.save(sa);
+            log.info("[StaffService] Cook returned. Available cooks: {}/{}",
+                    sa.getAvailableCooks(), sa.getTotalCooks());
+        }
+
+        // DELIVERING(배달중)으로 변경될 때 배달 담당 직원 체크 및 할당
+        if (newStatus == OrderStatus.DELIVERING && oldStatus != OrderStatus.DELIVERING) {
+            if (sa.getAvailableDrivers() <= 0) {
+                throw new CustomException("No available driver. Please wait until a driver is available.");
+            }
+            sa.setAvailableDrivers(sa.getAvailableDrivers() - 1);
+            staffAvailabilityRepository.save(sa);
+            log.info("[StaffService] Driver assigned. Available drivers: {}/{}",
+                    sa.getAvailableDrivers(), sa.getTotalDrivers());
         }
 
         // DELIVERED(배달완료)로 변경될 때 배달완료 시각 기록
@@ -86,6 +142,21 @@ public class StaffService {
         orderRepository.save(order);
         log.info("[StaffService] Order {} status updated from {} to {}",
             orderId, oldStatus, newStatus);
+    }
+
+    @Transactional
+    public void driverReturn() {
+        log.info("[StaffService] driverReturn() - START");
+        StaffAvailability sa = staffAvailabilityRepository.getStaffAvailability();
+
+        if (sa.getAvailableDrivers() >= sa.getTotalDrivers()) {
+            throw new CustomException("All drivers are already available.");
+        }
+
+        sa.setAvailableDrivers(sa.getAvailableDrivers() + 1);
+        staffAvailabilityRepository.save(sa);
+        log.info("[StaffService] Driver returned. Available drivers: {}/{}",
+                sa.getAvailableDrivers(), sa.getTotalDrivers());
     }
 
     private void deductInventoryForOrder(Order order) {
@@ -116,13 +187,19 @@ public class StaffService {
             }
         }
 
-        // 재고 차감
+        // 재고 차감 (DECORATION 카테고리는 제외)
         for (Map.Entry<Long, Integer> entry : dishRequirements.entrySet()) {
             Long dishId = entry.getKey();
             Integer requiredQty = entry.getValue();
 
             Dish dish = dishRepository.findById(dishId)
                     .orElseThrow(() -> new CustomException("Dish not found: " + dishId));
+
+            // 장식품은 재고 차감 제외
+            if (dish.getCategory() == DishCategory.DECORATION) {
+                log.info("[StaffService] Skipping decoration - Dish: {}", dish.getName());
+                continue;
+            }
 
             Integer currentStock = dish.getCurrentStock() != null ? dish.getCurrentStock() : 0;
             Integer newStock = currentStock - requiredQty;
@@ -143,7 +220,9 @@ public class StaffService {
         List<Dish> dishes = dishRepository.findAll();
         log.info("[StaffService] Found {} dishes in inventory", dishes.size());
 
+        // 장식품(DECORATION)은 재고 목록에서 제외
         List<InventoryItemResponse> inventory = dishes.stream()
+                .filter(dish -> dish.getCategory() != DishCategory.DECORATION)
                 .map(dish -> {
                     boolean isLowStock = dish.getCurrentStock() != null &&
                                        dish.getMinimumStock() != null &&
@@ -196,10 +275,8 @@ public class StaffService {
             // 각 dish의 필요 수량 계산 (DinnerDish의 quantity 사용)
             for (DinnerDish dinnerDish : dinner.getDinnerDishes()) {
                 Dish dish = dinnerDish.getDish();
-                Integer dishQuantityInDinner = dinnerDish.getQuantity(); // Dinner에 포함된 dish의 기본 수량
+                Integer dishQuantityInDinner = dinnerDish.getQuantity();
                 Integer requiredQty = dishQuantityInDinner * orderQuantity;
-
-                // 같은 dish가 여러 dinner에 포함될 수 있으므로 합산
                 dishRequirements.merge(dish.getId(), requiredQty, Integer::sum);
 
                 log.debug("[StaffService] Dish: {} - Quantity in dinner: {}, Order qty: {}, Required: {}",
@@ -209,7 +286,7 @@ public class StaffService {
 
         log.info("[StaffService] Total unique dishes required: {}", dishRequirements.size());
 
-        // 3. 각 dish의 현재 재고와 비교
+        // 3. 각 dish의 현재 재고와 비교 (DECORATION은 항상 충분으로 처리)
         List<OrderInventoryCheckResponse.DishRequirement> requirements = new ArrayList<>();
         boolean allSufficient = true;
 
@@ -220,9 +297,14 @@ public class StaffService {
             Dish dish = dishRepository.findById(dishId)
                     .orElseThrow(() -> new CustomException("Dish not found"));
 
+            // 장식품은 재고 체크 제외 (항상 충분)
+            if (dish.getCategory() == DishCategory.DECORATION) {
+                continue;
+            }
+
             Integer currentStock = dish.getCurrentStock() != null ? dish.getCurrentStock() : 0;
             boolean isSufficient = currentStock >= requiredQty;
-            Integer shortage = requiredQty - currentStock;  // 양수면 부족, 음수면 충분
+            Integer shortage = requiredQty - currentStock;
 
             if (!isSufficient) {
                 allSufficient = false;
@@ -239,7 +321,7 @@ public class StaffService {
                     .requiredQuantity(requiredQty)
                     .currentStock(currentStock)
                     .isSufficient(isSufficient)
-                    .shortage(shortage > 0 ? shortage : 0)  // 0 이하면 0으로 (충분함)
+                    .shortage(shortage > 0 ? shortage : 0)
                     .build());
         }
 

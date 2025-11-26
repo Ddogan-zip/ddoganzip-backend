@@ -7,21 +7,27 @@ INSERT INTO serving_styles (name, additional_price, description) VALUES
 ('Grand', 15000, '도자기 접시와 도자기 컵, 흰색 면 냅킨이 나무 쟁반에 제공'),
 ('Deluxe', 30000, '꽃병, 도자기 접시와 도자기 컵, 린넨 냅킨이 나무 쟁반에 제공');
 
--- Dishes (with inventory: current_stock, minimum_stock)
-INSERT INTO dishes (name, description, base_price, default_quantity, current_stock, minimum_stock) VALUES
-('Steak', '프리미엄 스테이크', 25000, 1, 5, 10),
-('Wine', '레드 와인', 8000, 1, 15, 20),
-('Coffee', '아메리카노', 3000, 1, 50, 30),
-('Salad', '신선한 샐러드', 5000, 1, 8, 15),
-('Scrambled Eggs', '에그 스크램블', 4000, 1, 25, 20),
-('Bacon', '베이컨', 5000, 1, 12, 15),
-('Bread', '식빵', 2000, 1, 30, 25),
-('Champagne', '샴페인 (병)', 50000, 1, 3, 5),
-('Baguette', '바게트빵', 3000, 1, 20, 15),
-('Coffee Pot', '커피 포트 (6잔)', 10000, 1, 6, 8),
-('Heart Decoration', '하트 장식', 2000, 1, 40, 30),
-('Cupid Decoration', '큐피드 장식', 3000, 1, 35, 25),
-('Napkin', '냅킨', 500, 1, 100, 50);
+-- Dishes (with inventory: current_stock, minimum_stock, category)
+-- Category: GENERAL (일반 재고, 화/금 충전), LIQUOR (주류, 매일 아침 충전), DECORATION (장식품, 재고 관리 제외)
+INSERT INTO dishes (name, description, base_price, default_quantity, current_stock, minimum_stock, category) VALUES
+('Steak', '프리미엄 스테이크', 25000, 1, 5, 10, 'GENERAL'),
+('Wine', '레드 와인', 8000, 1, 15, 20, 'LIQUOR'),
+('Coffee', '아메리카노', 3000, 1, 50, 30, 'GENERAL'),
+('Salad', '신선한 샐러드', 5000, 1, 8, 15, 'GENERAL'),
+('Scrambled Eggs', '에그 스크램블', 4000, 1, 25, 20, 'GENERAL'),
+('Bacon', '베이컨', 5000, 1, 12, 15, 'GENERAL'),
+('Bread', '식빵', 2000, 1, 30, 25, 'GENERAL'),
+('Champagne', '샴페인 (병)', 50000, 1, 3, 5, 'LIQUOR'),
+('Baguette', '바게트빵', 3000, 1, 20, 15, 'GENERAL'),
+('Coffee Pot', '커피 포트 (6잔)', 10000, 1, 6, 8, 'GENERAL'),
+('Heart Decoration', '하트 장식', 2000, 1, 0, 0, 'DECORATION'),
+('Cupid Decoration', '큐피드 장식', 3000, 1, 0, 0, 'DECORATION'),
+('Napkin', '냅킨', 500, 1, 100, 50, 'GENERAL');
+
+-- Staff Availability (직원 가용성)
+-- 총 10명: 요리 담당 5명, 배달 담당 5명
+INSERT INTO staff_availability (id, available_cooks, total_cooks, available_drivers, total_drivers) VALUES
+(1, 5, 5, 5, 5);
 
 -- Dinners
 INSERT INTO dinners (name, description, base_price, image_url) VALUES

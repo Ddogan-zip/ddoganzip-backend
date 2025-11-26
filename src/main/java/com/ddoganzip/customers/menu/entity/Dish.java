@@ -29,4 +29,8 @@ public class Dish {
 
     @Column(name = "minimum_stock")
     private Integer minimumStock = 10;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private DishCategory category = DishCategory.GENERAL;
 }
