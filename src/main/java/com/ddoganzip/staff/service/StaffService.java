@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ public class StaffService {
                         .customerEmail(order.getCustomer().getEmail())
                         .orderDate(order.getOrderDate())
                         .deliveryDate(order.getDeliveryDate())
+                        .deliveredAt(order.getDeliveredAt())
                         .deliveryAddress(order.getDeliveryAddress())
                         .status(order.getStatus())
                         .totalPrice(order.getTotalPrice())
@@ -73,6 +75,11 @@ public class StaffService {
         // RECEIVED(접수)로 변경될 때 재고 차감
         if (newStatus == OrderStatus.RECEIVED && oldStatus != OrderStatus.RECEIVED) {
             deductInventoryForOrder(order);
+        }
+
+        // DELIVERED(배달완료)로 변경될 때 배달완료 시각 기록
+        if (newStatus == OrderStatus.DELIVERED && oldStatus != OrderStatus.DELIVERED) {
+            order.setDeliveredAt(LocalDateTime.now());
         }
 
         order.setStatus(newStatus);

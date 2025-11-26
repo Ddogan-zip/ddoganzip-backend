@@ -30,6 +30,8 @@ public class Order extends BaseEntity {
 
     private LocalDateTime deliveryDate;
 
+    private LocalDateTime deliveredAt;
+
     private String deliveryAddress;
 
     @Enumerated(EnumType.STRING)

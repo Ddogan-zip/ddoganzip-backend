@@ -18,6 +18,7 @@ public class ActiveOrdersResponse {
     private String customerEmail;
     private LocalDateTime orderDate;
     private LocalDateTime deliveryDate;
+    private LocalDateTime deliveredAt;
     private String deliveryAddress;
     private OrderStatus status;
     private Integer totalPrice;
