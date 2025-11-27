@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS dinners CASCADE;
 DROP TABLE IF EXISTS dishes CASCADE;
 DROP TABLE IF EXISTS serving_styles CASCADE;
 DROP TABLE IF EXISTS customers CASCADE;
+DROP TABLE IF EXISTS staff_availability CASCADE;
 
 -- Customers table
 CREATE TABLE customers (
@@ -33,6 +34,7 @@ CREATE TABLE serving_styles (
 );
 
 -- Dishes table
+-- Category: GENERAL (일반 재고), LIQUOR (주류), DECORATION (장식품)
 CREATE TABLE dishes (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -40,7 +42,8 @@ CREATE TABLE dishes (
     base_price INTEGER NOT NULL,
     default_quantity INTEGER NOT NULL,
     current_stock INTEGER DEFAULT 0,
-    minimum_stock INTEGER DEFAULT 10
+    minimum_stock INTEGER DEFAULT 10,
+    category VARCHAR(50) DEFAULT 'GENERAL'
 );
 
 -- Dinners table
@@ -98,6 +101,7 @@ CREATE TABLE orders (
     status VARCHAR(50) NOT NULL,
     order_date TIMESTAMP NOT NULL,
     delivery_date TIMESTAMP,
+    delivered_at TIMESTAMP,
     delivery_address VARCHAR(500),
     total_price INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -129,4 +133,14 @@ CREATE TABLE customization_actions (
     FOREIGN KEY (cart_item_id) REFERENCES cart_items(id) ON DELETE CASCADE,
     FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
     FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE
+);
+
+-- Staff Availability table (직원 가용성)
+-- 요리 담당 5명, 배달 담당 5명
+CREATE TABLE staff_availability (
+    id BIGSERIAL PRIMARY KEY,
+    available_cooks INTEGER NOT NULL DEFAULT 5,
+    total_cooks INTEGER NOT NULL DEFAULT 5,
+    available_drivers INTEGER NOT NULL DEFAULT 5,
+    total_drivers INTEGER NOT NULL DEFAULT 5
 );
