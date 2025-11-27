@@ -41,7 +41,7 @@ public class StaffService {
     public List<ActiveOrdersResponse> getActiveOrders() {
         log.info("[StaffService] getActiveOrders() - START");
         List<Order> activeOrders = orderRepository.findActiveOrders(
-                Arrays.asList(OrderStatus.DELIVERED)
+                Arrays.asList(OrderStatus.DRIVER_RETURNED)
         );
         log.info("[StaffService] Found {} active orders", activeOrders.size());
 
@@ -145,8 +145,21 @@ public class StaffService {
     }
 
     @Transactional
-    public void driverReturn() {
-        log.info("[StaffService] driverReturn() - START");
+    public void driverReturn(Long orderId) {
+        log.info("[StaffService] driverReturn() - START for orderId: {}", orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("Order not found: " + orderId));
+
+        if (order.getStatus() != OrderStatus.DELIVERED) {
+            throw new CustomException("Driver can only return from DELIVERED orders. Current status: " + order.getStatus());
+        }
+
+        // 주문 상태를 DRIVER_RETURNED로 변경
+        order.setStatus(OrderStatus.DRIVER_RETURNED);
+        orderRepository.save(order);
+
+        // 기사 가용성 증가
         StaffAvailability sa = staffAvailabilityRepository.getStaffAvailability();
 
         if (sa.getAvailableDrivers() >= sa.getTotalDrivers()) {
@@ -155,8 +168,8 @@ public class StaffService {
 
         sa.setAvailableDrivers(sa.getAvailableDrivers() + 1);
         staffAvailabilityRepository.save(sa);
-        log.info("[StaffService] Driver returned. Available drivers: {}/{}",
-                sa.getAvailableDrivers(), sa.getTotalDrivers());
+        log.info("[StaffService] Driver returned for orderId: {}. Order status: DRIVER_RETURNED. Available drivers: {}/{}",
+                orderId, sa.getAvailableDrivers(), sa.getTotalDrivers());
     }
 
     private void deductInventoryForOrder(Order order) {

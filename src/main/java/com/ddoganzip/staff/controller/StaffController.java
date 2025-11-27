@@ -104,18 +104,18 @@ public class StaffController {
         }
     }
 
-    @PostMapping("/drivers/return")
-    public ResponseEntity<ApiResponse<Void>> driverReturn() {
-        log.info("=== [StaffController] POST /api/staff/drivers/return - START ===");
+    @PostMapping("/orders/{orderId}/driver-return")
+    public ResponseEntity<ApiResponse<Void>> driverReturn(@PathVariable Long orderId) {
+        log.info("=== [StaffController] POST /api/staff/orders/{}/driver-return - START ===", orderId);
         try {
-            staffService.driverReturn();
-            log.info("[StaffController] Driver returned successfully");
+            staffService.driverReturn(orderId);
+            log.info("[StaffController] Driver returned successfully for orderId: {}", orderId);
             return ResponseEntity.ok(ApiResponse.success("Driver returned"));
         } catch (Exception e) {
-            log.error("[StaffController] Failed to return driver: {}", e.getMessage(), e);
+            log.error("[StaffController] Failed to return driver for orderId {}: {}", orderId, e.getMessage(), e);
             throw e;
         } finally {
-            log.info("=== [StaffController] POST /api/staff/drivers/return - END ===");
+            log.info("=== [StaffController] POST /api/staff/orders/{}/driver-return - END ===", orderId);
         }
     }
 }
