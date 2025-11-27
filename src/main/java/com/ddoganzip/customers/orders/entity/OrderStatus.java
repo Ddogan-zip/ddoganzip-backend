@@ -6,5 +6,6 @@ public enum OrderStatus {
     IN_KITCHEN,
     COOKED,
     DELIVERING,
-    DELIVERED
+    DELIVERED,
+    DRIVER_RETURNED  // 배달 완료 후 기사 복귀 완료
 }
