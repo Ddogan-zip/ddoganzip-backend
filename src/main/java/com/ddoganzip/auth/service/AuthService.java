@@ -124,4 +124,27 @@ public class AuthService {
                 .expiresIn(jwtUtil.getAccessTokenValidity() / 1000)
                 .build();
     }
+
+    public MeResponse getMe(String email) {
+        log.info("[AuthService] getMe() - START for email: {}", email);
+
+        Customer customer = authRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.warn("[AuthService] Customer not found for email: {}", email);
+                    return new CustomException("Customer not found");
+                });
+
+        MeResponse response = MeResponse.builder()
+                .id(customer.getId())
+                .email(customer.getEmail())
+                .name(customer.getName())
+                .address(customer.getAddress())
+                .phone(customer.getPhone())
+                .memberGrade(customer.getMemberGrade())
+                .orderCount(customer.getOrderCount())
+                .build();
+
+        log.info("[AuthService] getMe() - SUCCESS for email: {}", email);
+        return response;
+    }
 }
