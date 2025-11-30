@@ -40,6 +40,13 @@ public class Customer extends BaseEntity {
     @Column(nullable = false)
     private Role role = Role.USER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberGrade memberGrade = MemberGrade.NORMAL;
+
+    @Column(nullable = false)
+    private Integer orderCount = 0;
+
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
 

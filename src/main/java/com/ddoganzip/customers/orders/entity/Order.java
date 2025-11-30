@@ -1,6 +1,7 @@
 package com.ddoganzip.customers.orders.entity;
 
 import com.ddoganzip.auth.entity.Customer;
+import com.ddoganzip.auth.entity.MemberGrade;
 import com.ddoganzip.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,6 +38,18 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.CHECKING_STOCK;
+
+    @Column(nullable = false)
+    private Integer originalPrice;
+
+    @Enumerated(EnumType.STRING)
+    private MemberGrade appliedGrade;
+
+    @Column(nullable = false)
+    private Integer discountPercent = 0;
+
+    @Column(nullable = false)
+    private Integer discountAmount = 0;
 
     @Column(nullable = false)
     private Integer totalPrice;
