@@ -66,15 +66,16 @@ INSERT INTO dinner_serving_styles (dinner_id, style_id) VALUES
 
 -- Test users
 -- User accounts (password: test1234) - BCrypt hash generated and verified
-INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
-('user@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '테스트 사용자', '서울시 강남구 테헤란로 123', '010-1234-5678', 'USER', NOW(), NOW()),
-('john@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'John Smith', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', NOW(), NOW()),
-('emily@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Emily Johnson', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', NOW(), NOW()),
-('mike@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mike Brown', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', NOW(), NOW());
+-- MemberGrade: NORMAL(0회), BRONZE(5회), SILVER(10회), GOLD(15회), VIP(20회)
+INSERT INTO customers (email, password, name, address, phone, role, member_grade, order_count, created_at, updated_at) VALUES
+('user@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '테스트 사용자', '서울시 강남구 테헤란로 123', '010-1234-5678', 'USER', 'NORMAL', 0, NOW(), NOW()),
+('john@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'John Smith', '서울시 서초구 강남대로 456', '010-2222-3333', 'USER', 'SILVER', 12, NOW(), NOW()),
+('emily@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Emily Johnson', '서울시 송파구 올림픽로 789', '010-3333-4444', 'USER', 'GOLD', 17, NOW(), NOW()),
+('mike@test.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Mike Brown', '서울시 강동구 천호대로 321', '010-4444-5555', 'USER', 'VIP', 25, NOW(), NOW());
 
 -- Staff account (password: staff1234) - BCrypt hash generated and verified
-INSERT INTO customers (email, password, name, address, phone, role, created_at, updated_at) VALUES
-('staff@test.com', '$2a$10$Xl4/5XJZLxJjCXXvlAl1/.Qp0K3CJM/W0.yLqg.qH0aDHEOZGTnTu', '직원 계정', '서울시 강남구 테헤란로 456', '010-9876-5432', 'STAFF', NOW(), NOW());
+INSERT INTO customers (email, password, name, address, phone, role, member_grade, order_count, created_at, updated_at) VALUES
+('staff@test.com', '$2a$10$Xl4/5XJZLxJjCXXvlAl1/.Qp0K3CJM/W0.yLqg.qH0aDHEOZGTnTu', '직원 계정', '서울시 강남구 테헤란로 456', '010-9876-5432', 'STAFF', 'NORMAL', 0, NOW(), NOW());
 
 -- Carts for users
 INSERT INTO carts (customer_id) VALUES
@@ -97,25 +98,27 @@ INSERT INTO cart_items (cart_id, dinner_id, serving_style_id, quantity) VALUES
 (3, 4, 3, 1);
 
 -- Sample Orders (샘플 주문 데이터)
--- mike@test.com의 완료된 주문 (Valentine Dinner Deluxe)
-INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(4, 'DELIVERED', TIMESTAMP '2025-11-16 15:30:00', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 75000, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
+-- original_price: 원가, applied_grade: 적용된 등급, discount_percent: 할인율, discount_amount: 할인 금액, total_price: 최종 가격
 
--- john@test.com의 배달 중인 주문 (French Dinner Grand x2)
-INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'DELIVERING', TIMESTAMP '2025-11-18 14:00:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 126000, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
+-- mike@test.com(VIP 15%)의 완료된 주문 (Valentine Dinner Deluxe): 원가 75000원, 15% 할인 = 11250원 할인, 최종 63750원
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, original_price, applied_grade, discount_percent, discount_amount, total_price, created_at, updated_at) VALUES
+(4, 'DELIVERED', TIMESTAMP '2025-11-16 15:30:00', '서울시 강동구 천호대로 321', TIMESTAMP '2025-11-17 19:00:00', 75000, 'VIP', 15, 11250, 63750, TIMESTAMP '2025-11-16 15:30:00', TIMESTAMP '2025-11-17 19:30:00');
 
--- emily@test.com의 조리 중인 주문 (Champagne Feast Dinner Grand)
-INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(3, 'IN_KITCHEN', TIMESTAMP '2025-11-18 16:00:00', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 135000, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
+-- john@test.com(SILVER 8%)의 배달 중인 주문 (French Dinner Grand x2): 원가 126000원, 8% 할인 = 10080원 할인, 최종 115920원
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, original_price, applied_grade, discount_percent, discount_amount, total_price, created_at, updated_at) VALUES
+(2, 'DELIVERING', TIMESTAMP '2025-11-18 14:00:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-18 18:00:00', 126000, 'SILVER', 8, 10080, 115920, TIMESTAMP '2025-11-18 14:00:00', TIMESTAMP '2025-11-18 16:30:00');
 
--- user@test.com의 접수된 주문 (English Dinner Simple x2)
-INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(1, 'RECEIVED', TIMESTAMP '2025-11-18 17:00:00', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 84000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
+-- emily@test.com(GOLD 11%)의 조리 중인 주문 (Champagne Feast Dinner Grand): 원가 135000원, 11% 할인 = 14850원 할인, 최종 120150원
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, original_price, applied_grade, discount_percent, discount_amount, total_price, created_at, updated_at) VALUES
+(3, 'IN_KITCHEN', TIMESTAMP '2025-11-18 16:00:00', '서울시 송파구 올림픽로 789', TIMESTAMP '2025-11-18 20:00:00', 135000, 'GOLD', 11, 14850, 120150, TIMESTAMP '2025-11-18 16:00:00', TIMESTAMP '2025-11-18 16:15:00');
 
--- john@test.com의 재고 확인 중인 주문 (Champagne Feast Dinner Deluxe)
-INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, total_price, created_at, updated_at) VALUES
-(2, 'CHECKING_STOCK', TIMESTAMP '2025-11-18 17:30:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 150000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
+-- user@test.com(NORMAL 0%)의 접수된 주문 (English Dinner Simple x2): 원가 84000원, 할인 없음, 최종 84000원
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, original_price, applied_grade, discount_percent, discount_amount, total_price, created_at, updated_at) VALUES
+(1, 'RECEIVED', TIMESTAMP '2025-11-18 17:00:00', '서울시 강남구 테헤란로 123', TIMESTAMP '2025-11-18 19:30:00', 84000, 'NORMAL', 0, 0, 84000, TIMESTAMP '2025-11-18 17:00:00', TIMESTAMP '2025-11-18 17:05:00');
+
+-- john@test.com(SILVER 8%)의 재고 확인 중인 주문 (Champagne Feast Dinner Deluxe): 원가 150000원, 8% 할인 = 12000원 할인, 최종 138000원
+INSERT INTO orders (customer_id, status, order_date, delivery_address, delivery_date, original_price, applied_grade, discount_percent, discount_amount, total_price, created_at, updated_at) VALUES
+(2, 'CHECKING_STOCK', TIMESTAMP '2025-11-18 17:30:00', '서울시 서초구 강남대로 456', TIMESTAMP '2025-11-19 12:00:00', 150000, 'SILVER', 8, 12000, 138000, TIMESTAMP '2025-11-18 17:30:00', TIMESTAMP '2025-11-18 17:30:00');
 
 -- Order Items (주문 아이템 데이터)
 -- 주문 1 (mike, DELIVERED): Valentine Dinner x1 (Deluxe 스타일)

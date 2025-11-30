@@ -28,6 +28,8 @@ classDiagram
         -String address
         -String phone
         -Role role
+        -MemberGrade memberGrade
+        -Integer orderCount
         -Cart cart
         -List~Order~ orders
     }
@@ -36,6 +38,21 @@ classDiagram
         <<enumeration>>
         USER
         STAFF
+    }
+
+    class MemberGrade {
+        <<enumeration>>
+        NORMAL(0, 0)
+        BRONZE(5, 5)
+        SILVER(8, 10)
+        GOLD(11, 15)
+        VIP(15, 20)
+        -int discountPercent
+        -int requiredOrders
+        +getDiscountPercent() int
+        +getRequiredOrders() int
+        +calculateGrade(int) MemberGrade
+        +calculateDiscount(int) int
     }
 
     %% Cart Domain
@@ -109,6 +126,10 @@ classDiagram
         -LocalDateTime deliveredAt
         -String deliveryAddress
         -OrderStatus status
+        -Integer originalPrice
+        -MemberGrade appliedGrade
+        -Integer discountPercent
+        -Integer discountAmount
         -Integer totalPrice
         -List~OrderItem~ items
     }
@@ -160,6 +181,7 @@ classDiagram
     Customer "1" --> "1" Cart : has
     Customer "1" --> "*" Order : places
     Customer --> Role : has
+    Customer --> MemberGrade : has
 
     %% Relationships - Cart
     Cart "1" --> "*" CartItem : contains
@@ -176,6 +198,7 @@ classDiagram
     %% Relationships - Order
     Order "1" --> "*" OrderItem : contains
     Order --> OrderStatus : has
+    Order --> MemberGrade : appliedGrade
     OrderItem "*" --> "1" Dinner : references
     OrderItem "*" --> "1" ServingStyle : uses
     OrderItem "1" --> "*" CustomizationAction : has
@@ -365,6 +388,7 @@ classDiagram
         +checkout(CheckoutRequest) Long
         +getOrderHistory() List~OrderHistoryResponse~
         +getOrderDetails(Long) OrderDetailResponse
+        -upgradeCustomerGrade(Customer) void
     }
 
     %% Staff Service
@@ -699,6 +723,10 @@ classDiagram
         -LocalDateTime deliveredAt
         -String deliveryAddress
         -OrderStatus status
+        -Integer originalPrice
+        -MemberGrade appliedGrade
+        -Integer discountPercent
+        -Integer discountAmount
         -Integer totalPrice
         -int itemCount
     }
@@ -711,6 +739,10 @@ classDiagram
         -LocalDateTime deliveredAt
         -String deliveryAddress
         -OrderStatus status
+        -Integer originalPrice
+        -MemberGrade appliedGrade
+        -Integer discountPercent
+        -Integer discountAmount
         -Integer totalPrice
         -List~OrderItemInfo~ items
     }

@@ -1,6 +1,7 @@
 package com.ddoganzip.customers.orders.service;
 
 import com.ddoganzip.auth.entity.Customer;
+import com.ddoganzip.auth.entity.MemberGrade;
 import com.ddoganzip.auth.repository.AuthRepository;
 import com.ddoganzip.customers.cart.entity.Cart;
 import com.ddoganzip.customers.cart.entity.CartItem;
@@ -14,6 +15,7 @@ import com.ddoganzip.customers.orders.entity.OrderStatus;
 import com.ddoganzip.customers.orders.repository.OrderRepository;
 import com.ddoganzip.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -54,7 +57,7 @@ public class OrderService {
         order.setDeliveryAddress(request.getDeliveryAddress());
         order.setStatus(OrderStatus.CHECKING_STOCK);
 
-        Integer totalPrice = 0;
+        Integer originalPrice = 0;
 
         for (CartItem cartItem : cart.getItems()) {
             OrderItem orderItem = new OrderItem();
@@ -83,18 +86,54 @@ public class OrderService {
             }
 
             orderItem.setPrice(itemPrice);
-            totalPrice += itemPrice;
+            originalPrice += itemPrice;
 
             order.getItems().add(orderItem);
         }
 
+        // 회원 등급 할인 적용
+        MemberGrade memberGrade = customer.getMemberGrade();
+        Integer discountPercent = memberGrade.getDiscountPercent();
+        Integer discountAmount = memberGrade.calculateDiscount(originalPrice);
+        Integer totalPrice = originalPrice - discountAmount;
+
+        order.setOriginalPrice(originalPrice);
+        order.setAppliedGrade(memberGrade);
+        order.setDiscountPercent(discountPercent);
+        order.setDiscountAmount(discountAmount);
         order.setTotalPrice(totalPrice);
+
+        log.info("[OrderService] Checkout - Customer: {}, Grade: {}, Original: {}, Discount: {}% ({}원), Total: {}",
+                customer.getEmail(), memberGrade, originalPrice, discountPercent, discountAmount, totalPrice);
+
         Order savedOrder = orderRepository.save(order);
+
+        // 주문 횟수 증가 및 등급 업그레이드 체크
+        upgradeCustomerGrade(customer);
 
         cart.clearItems();
         cartRepository.save(cart);
 
         return savedOrder.getId();
+    }
+
+    /**
+     * 주문 횟수 증가 및 등급 업그레이드
+     */
+    private void upgradeCustomerGrade(Customer customer) {
+        Integer newOrderCount = customer.getOrderCount() + 1;
+        customer.setOrderCount(newOrderCount);
+
+        MemberGrade oldGrade = customer.getMemberGrade();
+        MemberGrade newGrade = MemberGrade.calculateGrade(newOrderCount);
+
+        if (oldGrade != newGrade) {
+            customer.setMemberGrade(newGrade);
+            log.info("[OrderService] Customer {} upgraded from {} to {} (orderCount: {})",
+                    customer.getEmail(), oldGrade, newGrade, newOrderCount);
+        }
+
+        authRepository.save(customer);
     }
 
     @Transactional(readOnly = true)
@@ -110,6 +149,10 @@ public class OrderService {
                         .deliveredAt(order.getDeliveredAt())
                         .deliveryAddress(order.getDeliveryAddress())
                         .status(order.getStatus())
+                        .originalPrice(order.getOriginalPrice())
+                        .appliedGrade(order.getAppliedGrade())
+                        .discountPercent(order.getDiscountPercent())
+                        .discountAmount(order.getDiscountAmount())
                         .totalPrice(order.getTotalPrice())
                         .itemCount(order.getItems().size())
                         .build())
@@ -171,6 +214,10 @@ public class OrderService {
                 .deliveredAt(order.getDeliveredAt())
                 .deliveryAddress(order.getDeliveryAddress())
                 .status(order.getStatus())
+                .originalPrice(order.getOriginalPrice())
+                .appliedGrade(order.getAppliedGrade())
+                .discountPercent(order.getDiscountPercent())
+                .discountAmount(order.getDiscountAmount())
                 .totalPrice(order.getTotalPrice())
                 .items(itemInfos)
                 .build();

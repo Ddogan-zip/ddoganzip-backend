@@ -1,5 +1,6 @@
 package com.ddoganzip.customers.orders.dto;
 
+import com.ddoganzip.auth.entity.MemberGrade;
 import com.ddoganzip.customers.orders.entity.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,10 @@ public class OrderDetailResponse {
     private LocalDateTime deliveredAt;
     private String deliveryAddress;
     private OrderStatus status;
+    private Integer originalPrice;
+    private MemberGrade appliedGrade;
+    private Integer discountPercent;
+    private Integer discountAmount;
     private Integer totalPrice;
     private List<OrderItemInfo> items;
 
