@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -74,5 +75,23 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout() {
         log.info("=== [AuthController] POST /api/auth/logout ===");
         return ResponseEntity.ok(ApiResponse.success("Logout successful"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeResponse> getMe(Authentication authentication) {
+        log.info("=== [AuthController] GET /api/auth/me - START ===");
+        String email = authentication.getName();
+        log.info("[AuthController] Getting profile for email: {}", email);
+
+        try {
+            MeResponse response = authService.getMe(email);
+            log.info("[AuthController] Profile retrieved successfully for email: {}", email);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("[AuthController] Failed to get profile for email: {}, Error: {}", email, e.getMessage(), e);
+            throw e;
+        } finally {
+            log.info("=== [AuthController] GET /api/auth/me - END ===");
+        }
     }
 }
